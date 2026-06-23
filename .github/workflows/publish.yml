@@ -19,7 +19,7 @@ jobs:
       - name: Checkout Kiekut Helper
         uses: actions/checkout@v4
         with:
-          path: Kiekut-Helper
+          path: kaisstream
 
       - name: Checkout Stephans-KMP-Components
         uses: actions/checkout@v4
