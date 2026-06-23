@@ -1,0 +1,21 @@
+SELECT ?vessel ?vesselLabel ?imo ?mmsi ?tonnage ?length ?width ?teu WHERE {
+  # Suche das Schiff anhand der MMSI (P587)
+  ?vessel wdt:P587 "211217890" .
+
+  # Optionale Felder, falls gepflegt (verhindert, dass die Abfrage leer bleibt, wenn ein Wert fehlt)
+  OPTIONAL { ?vessel wdt:P458 ?imo . }
+  OPTIONAL { ?vessel wdt:P587 ?mmsi . }
+  OPTIONAL { ?vessel wdt:P1093 ?tonnage . }
+  OPTIONAL { ?vessel wdt:P2043 ?length . }
+  OPTIONAL { ?vessel wdt:P2261 ?width . }
+
+  # Sucht nach TEU-Werten im Text oder Freitext-Statements
+  OPTIONAL {
+    ?vessel ?p ?statement .
+    ?statement ps:P1093 ?teu . # In manchen Datensätzen wird Tonnage/Kapazität vermischt
+  }
+
+  # Holt den echten Namen (Label) des Schiffes auf Deutsch oder Englisch
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "de,en". }
+}
+LIMIT 1

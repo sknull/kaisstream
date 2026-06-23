@@ -1,0 +1,50 @@
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+
+@Composable
+fun VesselSearchScreen(viewModel: VesselSearchViewModel) {
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val vesselList by viewModel.filteredVessels.collectAsState()
+
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        // 1. Die Suchbox
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { viewModel.searchQuery.value = it },
+            label = { Text("Schiff oder MMSI suchen...") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            trailingIcon = { if (searchQuery.isNotBlank()) {
+                IconButton(onClick = { viewModel.searchQuery.value = "" }) {
+                    Text("✕") // Schnell löschen Knopf
+                }
+            }}
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 2. Die Schiffsliste
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(vesselList, key = { it.mmsi }) { vessel ->
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(vessel.name, style = MaterialTheme.typography.titleMedium)
+                            Text("${vessel.speed} kn", color = MaterialTheme.themeColor)
+                        }
+                        Text("Typ: ${vessel.typeText} • MMSI: ${vessel.mmsi}")
+                        if (vessel.length > 0) {
+                            Text("Maße: ${vessel.length}m x ${vessel.width}m")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

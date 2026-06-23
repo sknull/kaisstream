@@ -1,0 +1,57 @@
+class VesselSearchViewModel(
+    private val client: KmpAisStreamClient,
+    private val scope: CoroutineScope
+) {
+    // Der aktuelle Text in der Suchbox
+    val searchQuery = MutableStateFlow("")
+
+    // Der In-Memory Cache aller Schiffe, die aktuell im Hamburger Raum funken
+    private val activeVessels = MutableStateFlow<Map<Long, SearchableVessel>>(emptyMap())
+
+    init {
+        // Hintergrund-Task: Live-Daten in die Map einspeisen
+        scope.launch {
+            client.messages.collect { message ->
+                when (message) {
+                    is AisMessageWrapper.PositionReportWrapper -> {
+                        updatePosition(message)
+                    }
+                    is AisMessageWrapper.ShipStaticDataWrapper -> {
+                        updateStaticData(message)
+                    }
+                }
+            }
+        }
+
+        init {
+            scope.launch {
+                settingsRepository.getSettingsFlow() // Liefert einen unendlichen DB-Stream
+                    .distinctUntilChanged() // Reagiert nur, wenn sich wirklich Werte ändern
+                    .collect { settings ->
+                        // Jedes Mal, wenn der User im Einstellungsdialog auf "Speichern" drückt,
+                        // rauscht der neue Datensatz hier rein und der Stream startet sich neu!
+                        val config = mapSettingsToApiKey(settings)
+                        startStream(config)
+                    }
+            }
+        }
+    }
+
+    // Kombiniert die Suchanfrage mit den Live-Schiffen
+    val filteredVessels: StateFlow<List<SearchableVessel>> = searchQuery
+        .combine(activeVessels) { query, vessels ->
+            if (query.isBlank()) {
+                vessels.values.toList().sortedByDescending { it.speed } // Standard: Schnellste Schiffe oben
+            } else {
+                vessels.values.filter { vessel ->
+                    vessel.name.contains(query, ignoreCase = true) ||
+                    vessel.mmsi.toString().contains(query) ||
+                    vessel.typeText.contains(query, ignoreCase = true)
+                }.sortedBy { it.name }
+            }
+        }
+        .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private fun updatePosition(msg: AisMessageWrapper.PositionReportWrapper) { /* ... */ }
+    private fun updateStaticData(msg: AisMessageWrapper.ShipStaticDataWrapper) { /* ... */ }
+}

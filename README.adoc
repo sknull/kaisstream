@@ -1,0 +1,8 @@
+= kaisstream
+:doctype: book
+:description: Documentation for kaisstream
+:keywords: kotlin multiplatform, AIS
+:icons: font
+:toc:
+:toc-title: Contents
+:toclevels: 10

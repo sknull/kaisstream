@@ -1,0 +1,72 @@
+import de.visualdigits.common.domain.util.EncryptedString;
+import kotlin.Boolean;
+
+--
+-- SETTINGS
+--
+CREATE TABLE SettingsEntity (
+    id INTEGER NOT NULL DEFAULT 0,
+    language TEXT NOT NULL,
+    lastMaxImageSize INTEGER NOT NULL,
+    aisstreamApiKey TEXT AS EncryptedString NOT NULL DEFAULT "",
+    location TEXT NOT NULL,
+    useGpsLocation INTEGER AS Boolean NOT NULL,
+    radiusOuter TEXT NOT NULL,
+    radiusInner TEXT NOT NULL
+);
+
+insertSettings:
+INSERT INTO SettingsEntity (
+    language, lastMaxImageSize, aisstreamApiKey, location, useGpsLocation, radiusOuter, radiusInner
+)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+getSettingsById:
+SELECT * FROM SettingsEntity WHERE id = :id;
+
+updateSettingsEntity:
+UPDATE SettingsEntity
+SET language = :language,
+    lastMaxImageSize = :lastMaxImageSize,
+    aisstreamApiKey = :aisstreamApiKey,
+    location = :location,
+    useGpsLocation = :useGpsLocation,
+    radiusOuter = :radiusOuter,
+    radiusInner = :radiusInner
+WHERE id IS :id;
+
+deleteSettings:
+DELETE FROM SettingsEntity
+WHERE id IS :id;
+
+--
+-- MasterData
+--
+CREATE TABLE MasterDataEntity (
+    name TEXT NOT NULL,
+    mmsi INTEGER NOT NULL PRIMARY KEY,
+    timeUtc TEXT NOT NULL,
+    imoNumber INTEGER NOT NULL DEFAULT 0,
+    callSign TEXT NOT NULL DEFAULT "",
+    destination TEXT NOT NULL DEFAULT "",
+    totalLength INTEGER NOT NULL DEFAULT 0,
+    totalWidth INTEGER NOT NULL DEFAULT 0,
+    shipType INTEGER NOT NULL DEFAULT 0,
+    maximumStaticDraught REAL NOT NULL
+);
+
+upsertMasterData:
+INSERT OR REPLACE INTO MasterDataEntity(
+    mmsi, name, timeUtc, imoNumber, callSign, destination, totalLength, totalWidth, shipType, maximumStaticDraught
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+getAllMasterData:
+SELECT * FROM MasterDataEntity;
+
+getMasterDataByMmsi:
+SELECT * FROM MasterDataEntity WHERE mmsi = :mmsi;
+
+deleteMasterData:
+DELETE FROM MasterDataEntity
+WHERE mmsi IS :mmsi;
+
