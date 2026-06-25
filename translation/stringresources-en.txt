@@ -27,14 +27,14 @@ Display Theme
 Settings
 Cargo
 Fishing
-HSC
+High Speed Craft
 Marine
 Medical
 Military
 Other
 Passenger
 Pilot
-PleasureCraft
+Pleasure Craft
 Police
 PortTender
 SAR
@@ -58,6 +58,7 @@ Heading
 Hide Read items
 Knots
 Language
+Last Message
 Length
 Current Location
 Masterdata
@@ -70,6 +71,9 @@ Inner Radius
 Outer Radius
 Refresh Interval
 Refresh Wifi Only.
+Aisstream is offline
+No information available
+Aisstream is online
 Settings
 Speed
 Spot Color

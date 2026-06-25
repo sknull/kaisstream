@@ -24,6 +24,7 @@ import de.visualdigits.compose.resources.tab_moored_vessels
 import de.visualdigits.compose.resources.tab_settings
 import de.visualdigits.generated.AppVersion
 import de.visualdigits.kaisstream.data.model.aisstreamio.status.ServiceState
+import de.visualdigits.kaisstream.data.model.aisstreamio.status.ServiceStatus
 import de.visualdigits.kaisstream.data.repository.AisStreamClient
 import de.visualdigits.kaisstream.domain.model.errorhandling.toUiText
 import de.visualdigits.kaisstream.domain.model.geodata.AisDataUi
@@ -55,6 +56,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.io.Sink
 import kotlinx.io.Source
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -73,9 +75,12 @@ class KAisStreamViewModel(
     private val _state = MutableStateFlow(KAisStreamState())
     val state = _state.asStateFlow()
 
-    val _editedSettings = MutableStateFlow<Settings?>(null)
+    private val _editedSettings = MutableStateFlow<Settings?>(null)
     val editedSettings = _editedSettings.asStateFlow()
     private val retryCount = MutableStateFlow(0)
+
+    private val _serviceState = MutableStateFlow<ServiceState?>(null)
+    val serviceState = _serviceState.asStateFlow()
 
     private val positionData = MutableStateFlow<Map<Long, PositionData>>(emptyMap())
     private val masterData = MutableStateFlow<Map<Long, MasterData>>(emptyMap())
@@ -84,7 +89,7 @@ class KAisStreamViewModel(
 
         private val MAX_INACTIVITY_MINUTES: Duration = 5.minutes
     }
-    // landungsbrücken: 53.545977 9.9680454
+    // landungsbrücken:
 
     init {
         log(Severity.Info, "Application version ${AppVersion().version} initializing...", withTag = "AIS")
@@ -182,6 +187,29 @@ class KAisStreamViewModel(
                 }
         }
 
+        // monitor location change
+        scope.launch {
+            while (isActive) {
+                if (aisStreamClient.location.value != aisStreamClient._previousLocation.value) {
+                    log(Severity.Info, "Location changed - clearing position data")
+                    aisStreamClient._previousLocation.update { aisStreamClient.location.value }
+                    positionData.update { emptyMap() }
+                }
+                delay(500.milliseconds)
+            }
+        }
+
+        // monitor service state
+        scope.launch {
+            while (isActive) {
+                val serviceStatus = withContext(Dispatchers.IO) {
+                    aisStreamClient.serviceStatus()
+                }
+                _serviceState.update { serviceStatus?.state }
+                delay(10.seconds)
+            }
+        }
+
         // monitor incoming messages
         scope.launch {
             while (isActive) {
@@ -191,11 +219,7 @@ class KAisStreamViewModel(
                 if (minutesSinceLastMessage > MAX_INACTIVITY_MINUTES && aisStreamClient.receiverState.value == ReceiverState.noData) {
                     log(Severity.Info, "No messages for $minutesSinceLastMessage minutes. Checking Health Endpoint...", withTag = "AIS")
 
-                    val status = withContext(Dispatchers.IO) {
-                        aisStreamClient.serviceStatus()
-                    }
-
-                    if (status == null || status.state == ServiceState.Down) {
+                    if (_serviceState.value == ServiceState.Down) {
                         aisStreamClient._receiverState.update { ReceiverState.serverDown }
                     } else {
                         aisStreamClient._receiverState.update { ReceiverState.connectionLost }
@@ -237,6 +261,11 @@ class KAisStreamViewModel(
                 }.sortedWith(compareBy<AisDataUi> { ud -> ud.isMoored }
                     .thenBy { ud -> ud.distance })
         }.stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+
+    fun clearPositionData() {
+        positionData.update { emptyMap() }
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun onCommonAction(action: CommonAction) {

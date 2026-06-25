@@ -76,6 +76,8 @@ class AisStreamClient(
     private val _location = MutableStateFlow<Location?>(null)
     val location = _location.asStateFlow()
 
+    val _previousLocation = MutableStateFlow<Location?>(null)
+
     private val _lastMessage = MutableStateFlow<KmpOffsetDateTime>(KmpOffsetDateTime.now())
     val lastMessage = _lastMessage.asStateFlow()
 
@@ -179,6 +181,7 @@ class AisStreamClient(
         innerBoundingBox.value = targetLocation.calculateBoundingBox(innerRadius)
         val outerBoundingBox = targetLocation.calculateBoundingBox(outerRadius)
         val apiKey = ApiKey(apiKey = savedKey, boundingBoxes = outerBoundingBox.toList())
+        _previousLocation.value = _location.value
         _location.value = targetLocation
         _lastLocationUpdate.value = KmpOffsetDateTime.now()
 

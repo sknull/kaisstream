@@ -58,6 +58,7 @@ label_heading
 label_hide_read
 label_knots
 label_language
+label_last_message
 label_length
 label_location
 label_masterdata
@@ -70,6 +71,9 @@ label_radiusInner
 label_radiusOuter
 label_refresh_interval
 label_refresh_wifi_only
+label_service_down
+label_service_unknown
+label_service_up
 label_settings
 label_speed
 label_spotColor

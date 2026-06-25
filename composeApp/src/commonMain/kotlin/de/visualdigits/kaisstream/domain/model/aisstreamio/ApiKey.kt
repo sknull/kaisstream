@@ -5,6 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ApiKey(
-    @SerialName("APIKey") val apiKey: String? = null,
-    @SerialName("BoundingBoxes") val boundingBoxes: List<List<List<Double>>> = listOf()
+    @SerialName("APIKey") val apiKey: String,
+    @SerialName("BoundingBoxes") val boundingBoxes: List<List<List<Double>>>,
+    @SerialName("FiltersShipMMSI") val filterShipMmsi: List<Double> = listOf(),
+    @SerialName("FilterMessageTypes") val filterMessageTypes: List<String> = listOf()
 )

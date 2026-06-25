@@ -21,7 +21,9 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 @Serializable
 @JsonClassDiscriminator("MessageType")
 sealed class AisMessageWrapper {
+
     @SerialName("Message") abstract val message: AisMessageContainer<*>
+
     @SerialName("MetaData") abstract val metaData: AisMetaData
 
     override fun toString(): String {

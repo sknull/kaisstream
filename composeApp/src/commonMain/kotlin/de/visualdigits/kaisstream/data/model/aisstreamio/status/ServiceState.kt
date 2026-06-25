@@ -1,7 +1,11 @@
 package de.visualdigits.kaisstream.data.model.aisstreamio.status
 
-enum class ServiceState {
+import co.touchlab.kermit.Severity
 
-    Up,
-    Down
+enum class ServiceState(
+    val severity: Severity
+) {
+
+    Up(Severity.Info),
+    Down(Severity.Error)
 }

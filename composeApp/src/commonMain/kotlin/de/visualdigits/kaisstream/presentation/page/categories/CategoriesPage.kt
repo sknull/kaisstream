@@ -75,7 +75,10 @@ fun CategoriesPage(
             .keys.associateWith { category -> getString(category.label) }
 
         vessels = uiVesselsList
-            .map { vessel -> Pair(lookupMap[vessel.shipType?.category ?: ShipType.Unknown_0.category]!!, vessel) }
+            .mapNotNull { vessel ->
+                lookupMap[vessel.shipType?.category ?: ShipType.Unknown_0.category]
+                    ?.let { c -> Pair(c, vessel) }
+            }
             .groupBy { entry -> entry.first }
             .toList()
             .sortedBy { entry -> entry.first }
@@ -95,70 +98,64 @@ fun CategoriesPage(
             onAction = viewModel::onAction
         )
 
-        PlatformVerticalScrollbarBox(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(end = if (platformType == PlatformType.jvm) 20.dp else 0.dp),
-            scrollbarModifier = Modifier
-                .clip(MaterialTheme.shapes.small)
-                .width(10.dp)
-                .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
-            scrollbarStyle = PlatformScrollbarStyle(
-                minimalHeight = 16.dp,
-                thickness = 8.dp,
-                shape = RoundedCornerShape(4.dp),
-                hoverDurationMillis = 300,
-                unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
-                hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-            ),
-            scrollbarId = "categories",
-            scrollPosition = viewModel.scrollPosition,
-            onCommonAction = onCommonAction
-        ) {
-            if (vessels.isNotEmpty()) {
-                vessels.map { entry ->
-                    val categoryName = entry.first
-                    val vessels = entry.second
-                    Pair("category_$categoryName", @Composable {
-                        key("category_$categoryName") {
-                            VerticalCollapsibleBox(
-                                paddingContainer = PaddingValues(MaterialTheme.shapes.gap),
-                                title = "$categoryName [${vessels.size}]",
-                                unfocusedBorderColor = MaterialTheme.colorScheme.onSurface,
-                                focusedBorderColor = MaterialTheme.colorScheme.outline,
-                                backgroundColor = Color.Black.copy(alpha = 0.2f),
-                                shape = MaterialTheme.shapes.extraSmall,
-                                isExpanded = state.collapsibleState["category_$categoryName"] == true,
-                                iconArrowRight = painterResource(Res.drawable.icon_arrow_right_24px),
-                                iconArrowDown = painterResource(Res.drawable.icon_arrow_drop_down_24px),
-                                iconTint = Color.White,
-                                onStateChange = { state->
-                                    onAction(KAisStreamAction.OnCollapsibleStateChange("category_$categoryName", state))
-                                }
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxSize(),
-                                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
-                                ) {
-                                    vessels.forEach { entry ->
-                                        val data = entry.second
-                                        key("category_${categoryName}_${data.mmsi}") {
-                                            VesselCard(
-                                                uriHandler = uriHandler,
-                                                screenWidth = screenWidth,
-                                                screenHeight = screenHeight,
-                                                data = data,
-                                                simple = true
-                                            )
-                                        }
+        vessels.map { entry ->
+            val categoryName = entry.first
+            val vessels = entry.second
+            key("category_$categoryName") {
+                VerticalCollapsibleBox(
+                    paddingContainer = PaddingValues(MaterialTheme.shapes.gap),
+                    title = "$categoryName [${vessels.size}]",
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onSurface,
+                    focusedBorderColor = MaterialTheme.colorScheme.outline,
+                    backgroundColor = Color.Black.copy(alpha = 0.2f),
+                    shape = MaterialTheme.shapes.extraSmall,
+                    isExpanded = state.collapsibleState["category_$categoryName"] == true,
+                    iconArrowRight = painterResource(Res.drawable.icon_arrow_right_24px),
+                    iconArrowDown = painterResource(Res.drawable.icon_arrow_drop_down_24px),
+                    iconTint = Color.White,
+                    onStateChange = { state->
+                        onAction(KAisStreamAction.OnCollapsibleStateChange("category_$categoryName", state))
+                    }
+                ) {
+                    PlatformVerticalScrollbarBox(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(end = if (platformType == PlatformType.jvm) 20.dp else 0.dp),
+                        scrollbarModifier = Modifier
+                            .clip(MaterialTheme.shapes.small)
+                            .width(10.dp)
+                            .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
+                        scrollbarStyle = PlatformScrollbarStyle(
+                            minimalHeight = 16.dp,
+                            thickness = 8.dp,
+                            shape = RoundedCornerShape(4.dp),
+                            hoverDurationMillis = 300,
+                            unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                            hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        ),
+                        scrollbarId = "category_$categoryName",
+                        scrollPosition = viewModel.scrollPosition,
+                        onCommonAction = onCommonAction
+                    ) {
+                        if (vessels.isNotEmpty()) {
+                            vessels.map { entry ->
+                                val data = entry.second
+                                Pair("category_${categoryName}_${data.mmsi}", @Composable {
+                                    key("category_${categoryName}_${data.mmsi}") {
+                                        VesselCard(
+                                            uriHandler = uriHandler,
+                                            screenWidth = screenWidth,
+                                            screenHeight = screenHeight,
+                                            data = data,
+                                            simple = true
+                                        )
                                     }
-                                }
+                                })
                             }
-                        }
-                    })
+                        } else listOf()
+                    }
                 }
-            } else listOf()
+            }
         }
     }
 }

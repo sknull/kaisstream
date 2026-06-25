@@ -18,8 +18,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.form.EditableListResources
 import de.visualdigits.common.domain.model.ui.UiText
+import de.visualdigits.common.presentation.components.container.ErrorCard
 import de.visualdigits.common.presentation.components.form.ConfigurationEditForm
 import de.visualdigits.common.presentation.components.util.switchBoxColors
 import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
@@ -38,6 +40,9 @@ import de.visualdigits.compose.resources.icon_delete_24px
 import de.visualdigits.compose.resources.icon_edit_24px
 import de.visualdigits.compose.resources.icon_folder_open_24px
 import de.visualdigits.compose.resources.icon_visibility_24px
+import de.visualdigits.compose.resources.label_service_down
+import de.visualdigits.compose.resources.label_service_unknown
+import de.visualdigits.compose.resources.label_service_up
 import de.visualdigits.compose.resources.ok
 import de.visualdigits.compose.resources.title_settings
 import de.visualdigits.kaisstream.presentation.model.KAisStreamAction
@@ -52,6 +57,7 @@ fun SettingsPage(
     onAction: (KAisStreamAction) -> Unit
 ) {
 
+    val serviceState by viewModel.serviceState.collectAsState()
     val editedSettings by viewModel.editedSettings.collectAsState()
 
     Column(
@@ -59,6 +65,17 @@ fun SettingsPage(
             .padding(16.dp)
             .fillMaxSize()
     ) {
+        val severity = serviceState?.severity
+        ErrorCard(
+            severity = severity ?: Severity.Warn,
+            errorMessage = when (severity) {
+                Severity.Info -> UiText.StringResourceId(Res.string.label_service_up)
+                Severity.Error -> UiText.StringResourceId(Res.string.label_service_down)
+                else -> UiText.StringResourceId(Res.string.label_service_unknown)
+            },
+            shapeContainer = MaterialTheme.shapes.small
+        )
+
         Row(
             modifier = Modifier
                 .fillMaxWidth(),

@@ -46,7 +46,7 @@ object HttpClientFactory {
                 )
             }
             install(Logging) {
-                level = LogLevel.ALL
+                level = LogLevel.NONE
                 logger = object : Logger {
                     override fun log(message: String) {
                         log.d(message)

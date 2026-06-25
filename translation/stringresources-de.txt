@@ -29,12 +29,12 @@ Fracht
 Fischerboot
 Schnellboot
 Marine
-Medizinisch
+Ambulanz
 Militärisch
 Anderes
 Passigiertransport
 Pilot
-Vergnügung
+Freizeit
 Polizei
 Hafen
 Seerettung
@@ -58,6 +58,7 @@ Richtg.
 Gelesene Verstecken
 Knoten
 Sprache
+Letzte Meldung
 Länge
 Aktueller Standort
 Master Daten
@@ -70,6 +71,9 @@ Innerer Radius
 Äußerer Radius
 Aktualisierungsintervall
 Nur im Wlan aktualisieren.
+Aisstream ist offline
+Keine Information verfügbar
+Aisstream ist online
 Einstellungen
 Geschw.
 Spot Farbe
