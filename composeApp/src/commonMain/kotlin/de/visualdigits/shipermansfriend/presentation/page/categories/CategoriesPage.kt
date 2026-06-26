@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -65,23 +66,41 @@ fun CategoriesPage(
     val uiVesselsList by viewModel.uiVessels.collectAsState()
     val locationValue = location()
 
-    var vessels by remember(uiVesselsList) {
+    var categories by remember {
         mutableStateOf<List<Pair<String,List<Pair<String, AisDataUi>>>>>(emptyList())
     }
 
+    // 2. Der asynchrone Lade-Block lauscht auf die Schiffsliste
     LaunchedEffect(uiVesselsList) {
-        val lookupMap = uiVesselsList
-            .groupBy { vessel -> vessel.shipType?.category ?: ShipType.Unknown_0.category }
-            .keys.associateWith { category -> getString(category.label) }
+        if (uiVesselsList.isEmpty()) {
+            categories = emptyList()
+            return@LaunchedEffect
+        }
 
-        vessels = uiVesselsList
+        // A) Ermittle alle benötigten Kategorien
+        val distinctCategories = uiVesselsList
+            .map { vessel -> vessel.shipType?.category ?: ShipType.Unknown_0.category }
+            .distinct()
+
+        // B) Berechne die Übersetzungen asynchron über die suspend 'getString'-Funktion
+        // Ohne die UI-Liste währenddessen zu leeren!
+        val lookupMap = distinctCategories.associateWith { category ->
+            getString(category.label) // Deine suspend-Funktion läuft hier völlig sicher
+        }
+
+        // C) Baue die neue Datenstruktur im Speicher zusammen
+        val updatedCategories = uiVesselsList
             .mapNotNull { vessel ->
                 lookupMap[vessel.shipType?.category ?: ShipType.Unknown_0.category]
-                    ?.let { c -> Pair(c, vessel) }
+                    ?.let { translatedName -> Pair(translatedName, vessel) }
             }
             .groupBy { entry -> entry.first }
             .toList()
             .sortedBy { entry -> entry.first }
+
+        // D) ATOMARER SCHNITT: Erst JETZT tauschen wir die alte Liste gegen die neue aus.
+        // Die Scrollbox sieht zu keinem Zeitpunkt eine leere Liste, die Höhe bleibt stabil!
+        categories = updatedCategories
     }
 
     Column(
@@ -98,67 +117,75 @@ fun CategoriesPage(
             onAction = viewModel::onAction
         )
 
-        vessels.map { entry ->
-            val categoryName = entry.first
-            val vessels = entry.second
-            key("category_$categoryName") {
-                VerticalCollapsibleBox(
-                    paddingContainer = PaddingValues(MaterialTheme.shapes.gap),
-                    title = "$categoryName [${vessels.size}]",
-                    unfocusedBorderColor = MaterialTheme.colorScheme.onSurface,
-                    focusedBorderColor = MaterialTheme.colorScheme.outline,
-                    backgroundColor = Color.Black.copy(alpha = 0.2f),
-                    shape = MaterialTheme.shapes.extraSmall,
-                    isExpanded = state.collapsibleState["category_$categoryName"] == true,
-                    iconArrowRight = painterResource(Res.drawable.icon_arrow_right_24px),
-                    iconArrowDown = painterResource(Res.drawable.icon_arrow_drop_down_24px),
-                    iconTint = Color.White,
-                    onStateChange = { state->
-                        onAction(ShipermansFriendAction.OnCollapsibleStateChange("category_$categoryName", state))
-                    }
+        PlatformVerticalScrollbarBox(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(end = if (platformType == PlatformType.jvm) 20.dp else 0.dp),
+            scrollbarModifier = Modifier
+                .clip(MaterialTheme.shapes.small)
+                .width(10.dp)
+                .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
+            scrollbarStyle = PlatformScrollbarStyle(
+                minimalHeight = 16.dp,
+                thickness = 8.dp,
+                shape = RoundedCornerShape(4.dp),
+                hoverDurationMillis = 300,
+                unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+            ),
+            scrollbarId = "categories",
+            scrollPosition = viewModel.scrollPosition,
+            onCommonAction = onCommonAction
+        ) {
+            listOf(Pair("categories", @Composable {
+               Column(
+                    modifier = Modifier
+                        .fillMaxSize(1f)
+                        .padding(top = MaterialTheme.shapes.gap),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
                 ) {
-                    PlatformVerticalScrollbarBox(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(end = if (platformType == PlatformType.jvm) 20.dp else 0.dp),
-                        scrollbarModifier = Modifier
-                            .clip(MaterialTheme.shapes.small)
-                            .width(10.dp)
-                            .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
-                        scrollbarStyle = PlatformScrollbarStyle(
-                            minimalHeight = 16.dp,
-                            thickness = 8.dp,
-                            shape = RoundedCornerShape(4.dp),
-                            hoverDurationMillis = 300,
-                            unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
-                            hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                        ),
-                        scrollbarId = "category_$categoryName",
-                        scrollPosition = viewModel.scrollPosition,
-                        onCommonAction = onCommonAction
-                    ) {
-                        if (vessels.isNotEmpty()) {
-                            vessels.map { entry ->
-                                val data = entry.second
-                                Pair("category_${categoryName}_${data.mmsi}", @Composable {
-                                    key("category_${categoryName}_${data.mmsi}") {
-                                        VesselCard(
-                                            uriHandler = uriHandler,
-                                            screenWidth = screenWidth,
-                                            screenHeight = screenHeight,
-                                            location = locationValue,
-                                            vessels = vessels.map { it.second },
-                                            selectedVessel = data,
-                                            simple = true,
-                                            onAction = onAction
-                                        )
-                                    }
-                                })
+                    categories.forEach { category ->
+                        val categoryName = category.first
+                        VerticalCollapsibleBox(
+                            paddingContainer = PaddingValues(MaterialTheme.shapes.gap),
+                            title = "$categoryName [${category.second.size}]",
+                            unfocusedBorderColor = MaterialTheme.colorScheme.onSurface,
+                            focusedBorderColor = MaterialTheme.colorScheme.outline,
+                            backgroundColor = Color.Black.copy(alpha = 0.2f),
+                            shape = MaterialTheme.shapes.extraSmall,
+                            isExpanded = state.collapsibleState["category_$categoryName"] == true,
+                            iconArrowRight = painterResource(Res.drawable.icon_arrow_right_24px),
+                            iconArrowDown = painterResource(Res.drawable.icon_arrow_drop_down_24px),
+                            iconTint = Color.White,
+                            onStateChange = { state->
+                                onAction(ShipermansFriendAction.OnCollapsibleStateChange("category_$categoryName", state))
                             }
-                        } else listOf()
+                        ) {
+                            key("category_$categoryName") {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+                                ) {
+                                    category.second.forEach { entry ->
+                                        val data = entry.second
+                                        key("category_${categoryName}_${data.mmsi}") {
+                                            VesselCard(
+                                                uriHandler = uriHandler,
+                                                screenWidth = screenWidth,
+                                                screenHeight = screenHeight,
+                                                location = locationValue,
+                                                vessels = category.second.map { it.second },
+                                                selectedVessel = data,
+                                                simple = true,
+                                                onAction = onAction
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-            }
+            }))
         }
     }
 }
