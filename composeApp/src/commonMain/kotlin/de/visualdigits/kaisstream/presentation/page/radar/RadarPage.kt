@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -85,29 +86,11 @@ fun RadarPage(
                 colorGrid = colorGrid
             )
 
-            val currentHoverName = activeHoverNameState.value
-            currentHoverName?.let { name ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .clip(MaterialTheme.shapes.extraSmall)
-                            .border(2.dp, colorGrid, MaterialTheme.shapes.extraSmall)
-                            .background(colorBackground.mix(colorGrid, 0.2f, BlendMode.Multiply))
-                            .width(300.dp)
-                            .height(IntrinsicSize.Min)
-                            .padding(MaterialTheme.shapes.gap),
-                        text = name,
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
-                        color = colorGrid,
-                        maxLines = 1
-                    )
-                }
-            }
+            HoveredVesselBox(
+                activeHoverNameState = activeHoverNameState,
+                colorGrid = colorGrid,
+                colorBackground = colorBackground
+            )
         }
     }
 }

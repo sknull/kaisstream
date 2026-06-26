@@ -39,9 +39,9 @@ fun main() {
     val viewModel: KAisStreamViewModel = koinApp.koin.get()
     val homeDirectoryPath = koinApp.koin.get<String>(named("homeDirectory"))
 
-    val writers = getPlatformLogWriters(homeDirectoryPath, "KAisStream.log")
+    val writers = getPlatformLogWriters(homeDirectoryPath, "ShipermansFriend.log")
     Logger.setLogWriters(writers)
-    Logger.setTag("KAisStream")
+    Logger.setTag("ShipermansFriend")
     Logger.setMinSeverity(Severity.Debug)
 
     System.setProperty("flatlaf.useWindowDecorations", "true")
@@ -76,7 +76,7 @@ fun main() {
                 ioScope.cancel("Normal Exit")
                 exitApplication()
             },
-            title = "Kiekut Helper",
+            title = "Shiperman's Friend",
             icon = painterResource(Res.drawable.favicon),
             state = state
         ) {
