@@ -83,6 +83,7 @@
   <string name="label_url">Feed URL</string>
   <string name="label_useGpsLocation">Use GPS location instead of fix location</string>
   <string name="label_width">Width</string>
+  <string name="label_zoom">Zoom</string>
   <string name="labelknots">Knots</string>
   <string name="language_de">German</string>
   <string name="language_en">English</string>

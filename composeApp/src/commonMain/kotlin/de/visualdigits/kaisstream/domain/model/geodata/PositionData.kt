@@ -2,6 +2,8 @@ package de.visualdigits.kaisstream.domain.model.geodata
 
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
+import kotlin.math.cos
+import kotlin.math.sin
 
 class PositionData(
     name: String,

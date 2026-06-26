@@ -3,6 +3,7 @@ package de.visualdigits.kaisstream.presentation.model
 import androidx.compose.runtime.Stable
 import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.ui.UiText
+import de.visualdigits.kaisstream.domain.model.geodata.AisDataUi
 import de.visualdigits.kaisstream.domain.model.settings.Settings
 import de.visualdigits.kaisstream.domain.model.type.Language
 import de.visualdigits.kaisstream.domain.model.type.ProgressStage
@@ -32,4 +33,6 @@ data class KAisStreamState(
 
     val isEditMode: Boolean = false,
 
+    val vessels: List<AisDataUi> = listOf(),
+    val selectedVessel: AisDataUi? = null
 )

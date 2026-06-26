@@ -1,0 +1,24 @@
+Colors:
+
+Hex		#D6332F
+Name	Valencia
+RGB		214, 51, 47
+HSL		1, 67, 51
+CMYK	0, 76, 78, 16
+
+Hex		#FFFFFF
+Name	White
+RGB		255, 255, 255
+HSL		0, 0, 100
+CMYK	0, 0, 0, 0
+
+Hex		#131313
+Name	Cod Gray
+RGB		19, 19, 19
+HSL		0, 0, 7
+CMYK	0, 0, 0, 93
+
+
+Font:
+
+Gill Sans

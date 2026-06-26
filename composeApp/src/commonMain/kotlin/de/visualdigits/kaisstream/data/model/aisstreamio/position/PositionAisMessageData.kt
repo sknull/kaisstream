@@ -7,15 +7,10 @@ import de.visualdigits.kaisstream.data.model.aisstreamio.common.AisMessageData
 interface PositionAisMessageData<C : AisMessageContainer<C>> : AisMessageData<C> {
 
     val location: Location
-
     val sog: Double
-
     val cog: Double
-
     val trueHeading: Int
-
     val isMoored: Boolean
-
     val timestamp: Int
 
     val displayHeading: Double
@@ -29,5 +24,4 @@ interface PositionAisMessageData<C : AisMessageContainer<C>> : AisMessageData<C>
                 if (cog >= 360.0) 0.0 else cog
             }
         }
-
 }

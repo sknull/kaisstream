@@ -24,7 +24,6 @@ import de.visualdigits.compose.resources.tab_moored_vessels
 import de.visualdigits.compose.resources.tab_settings
 import de.visualdigits.generated.AppVersion
 import de.visualdigits.kaisstream.data.model.aisstreamio.status.ServiceState
-import de.visualdigits.kaisstream.data.model.aisstreamio.status.ServiceStatus
 import de.visualdigits.kaisstream.data.repository.AisStreamClient
 import de.visualdigits.kaisstream.domain.model.errorhandling.toUiText
 import de.visualdigits.kaisstream.domain.model.geodata.AisDataUi
@@ -82,7 +81,9 @@ class KAisStreamViewModel(
     private val _serviceState = MutableStateFlow<ServiceState?>(null)
     val serviceState = _serviceState.asStateFlow()
 
-    private val positionData = MutableStateFlow<Map<Long, PositionData>>(emptyMap())
+    private val _positionData = MutableStateFlow<Map<Long, PositionData>>(emptyMap())
+    val positionData = _positionData.asStateFlow()
+
     private val masterData = MutableStateFlow<Map<Long, MasterData>>(emptyMap())
 
     companion object {
@@ -136,7 +137,7 @@ class KAisStreamViewModel(
                         // collects position data within the inner bounds the client was configured with
                         is PositionData -> {
                             if (aisStreamClient.innerBoundingBox.value?.let { bb -> message.location.isInBoundingBox(bb) } == true) {
-                                positionData.update { current -> current + (message.mmsi to message) }
+                                _positionData.update { current -> current + (message.mmsi to message) }
                                 if (!masterData.value.containsKey(message.mmsi)) {
                                     launch {
                                         val masterDataResult = masterDataRepository.getMasterData(message.mmsi)
@@ -193,7 +194,7 @@ class KAisStreamViewModel(
                 if (aisStreamClient.location.value != aisStreamClient._previousLocation.value) {
                     log(Severity.Info, "Location changed - clearing position data")
                     aisStreamClient._previousLocation.update { aisStreamClient.location.value }
-                    positionData.update { emptyMap() }
+                    _positionData.update { emptyMap() }
                 }
                 delay(500.milliseconds)
             }
@@ -235,7 +236,7 @@ class KAisStreamViewModel(
 
     // collects position data within the inner bounds
     val uiVessels: StateFlow<List<AisDataUi>> =
-        combine(positionData, masterData, aisStreamClient.location) { positions, masterDataMap, location ->
+        combine(_positionData, masterData, aisStreamClient.location) { positions, masterDataMap, location ->
             positions.values
                 .map { positionData ->
                     val md = masterDataMap[positionData.mmsi]
@@ -264,7 +265,7 @@ class KAisStreamViewModel(
 
 
     fun clearPositionData() {
-        positionData.update { emptyMap() }
+        _positionData.update { emptyMap() }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -384,7 +385,29 @@ class KAisStreamViewModel(
                         isEditingSettings = false,
                         isShowInfos = false,
                         uiMessage = null,
-                        uiMessageSeverity = null
+                        uiMessageSeverity = null,
+                        vessels = listOf(),
+                        selectedVessel = null
+                    )
+                }
+            }
+
+            //
+            // Vessels
+            //
+            is KAisStreamAction.OnShowRadar -> {
+                _state.update {
+                    it.copy(
+                        vessels = action.vessels,
+                        selectedVessel = action.selectedVessel
+                    )
+                }
+            }
+            is KAisStreamAction.OnShowRadarBack -> {
+                _state.update {
+                    it.copy(
+                        vessels = listOf(),
+                        selectedVessel = null
                     )
                 }
             }

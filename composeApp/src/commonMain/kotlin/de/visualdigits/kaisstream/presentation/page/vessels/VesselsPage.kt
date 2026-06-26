@@ -22,6 +22,7 @@ import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.components.PlatformVerticalScrollbarBox
 import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
 import de.visualdigits.kaisstream.data.repository.AisStreamClient
+import de.visualdigits.kaisstream.presentation.model.KAisStreamAction
 import de.visualdigits.kaisstream.presentation.model.KAisStreamViewModel
 import de.visualdigits.kaisstream.presentation.style.gap
 
@@ -34,8 +35,9 @@ fun VesselsPage(
     screenWidth: Dp,
     screenHeight: Dp,
     uriHandler: UriHandler,
-    location: () -> Location?,
-    isMoored: Boolean
+    isMoored: Boolean,
+    onAction: (KAisStreamAction) -> Unit,
+    location: () -> Location?
 ) {
     val receiverState by aisStreamClient.receiverState.collectAsStateWithLifecycle()
     val lastLocationUpdate by aisStreamClient.lastLocationUpdateMinutes.collectAsStateWithLifecycle()
@@ -82,7 +84,10 @@ fun VesselsPage(
                             uriHandler = uriHandler,
                             screenWidth = screenWidth,
                             screenHeight = screenHeight,
-                            data = data
+                            location = locationValue,
+                            vessels = vessels,
+                            selectedVessel = data,
+                            onAction = onAction
                         )
                     })
                 }

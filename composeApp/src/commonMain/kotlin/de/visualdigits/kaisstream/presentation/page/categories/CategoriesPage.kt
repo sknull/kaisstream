@@ -146,8 +146,11 @@ fun CategoriesPage(
                                             uriHandler = uriHandler,
                                             screenWidth = screenWidth,
                                             screenHeight = screenHeight,
-                                            data = data,
-                                            simple = true
+                                            location = locationValue,
+                                            vessels = vessels.map { it.second },
+                                            selectedVessel = data,
+                                            simple = true,
+                                            onAction = onAction
                                         )
                                     }
                                 })

@@ -9,8 +9,8 @@ import de.visualdigits.common.domain.model.geodata.BoundingBox
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.geodata.toLocation
 import de.visualdigits.kaisstream.data.model.aisstreamio.AisMessageWrapper
-import de.visualdigits.kaisstream.data.model.aisstreamio.position.PositionAisMessageWrapper
-import de.visualdigits.kaisstream.data.model.aisstreamio.staticdata.StaticDataAisMessageWrapper
+import de.visualdigits.kaisstream.data.model.aisstreamio.PositionAisMessageWrapper
+import de.visualdigits.kaisstream.data.model.aisstreamio.StaticDataAisMessageWrapper
 import de.visualdigits.kaisstream.data.model.aisstreamio.status.ServiceStatus
 import de.visualdigits.kaisstream.domain.model.aisstreamio.ApiKey
 import de.visualdigits.kaisstream.domain.model.geodata.AisData

@@ -39,6 +39,7 @@ import de.visualdigits.kaisstream.data.repository.AisStreamClient
 import de.visualdigits.kaisstream.presentation.model.KAisStreamAction
 import de.visualdigits.kaisstream.presentation.model.KAisStreamViewModel
 import de.visualdigits.kaisstream.presentation.page.categories.CategoriesPage
+import de.visualdigits.kaisstream.presentation.page.radar.RadarPage
 import de.visualdigits.kaisstream.presentation.page.settings.SettingsPage
 import de.visualdigits.kaisstream.presentation.page.vessels.VesselsPage
 import de.visualdigits.kaisstream.presentation.style.IndicatorColor
@@ -86,8 +87,9 @@ fun MainPage(
                         screenWidth = screenWidth,
                         screenHeight = screenHeight,
                         uriHandler = uriHandler,
-                        location = { location },
-                        isMoored = false
+                        isMoored = false,
+                        onAction = viewModel::onAction,
+                        location = { location }
                     )
                 },
                 Pair("moored_vessels", UiText.StringResourceId(Res.string.tab_moored_vessels)) to {
@@ -99,6 +101,7 @@ fun MainPage(
                         screenHeight = screenHeight,
                         uriHandler = uriHandler,
                         location = { location },
+                        onAction = viewModel::onAction,
                         isMoored = true
                     )
                 },
@@ -156,44 +159,55 @@ fun MainPage(
                         shapeContainer = MaterialTheme.shapes.small
                     )
 
-                    TabButtonRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .drawBehind {
-                                val strokeWidth = 2.dp.toPx()
-                                drawLine(
-                                    color = MarineBlue,
-                                    start = Offset(0f, size.height - strokeWidth / 2),
-                                    end = Offset(size.width, size.height - strokeWidth / 2),
-                                    strokeWidth = strokeWidth
-                                )
-                            },
-                        horizontalArrangement = Arrangement.spacedBy(0.dp),
-                        selectedTab = { state.selectedTabIndex },
-                        items = items
-                    ) { label, index ->
-                        IndicatorButton(
-                            buttonColor = MarineBlue,
-                            textColor = Color.White,
-                            width = screenWidth / 4 - 10.dp,
-                            height = 40.dp,
-                            text = label.asString(),
-                            textStyle = MaterialTheme.typography.titleSmall,
-                            indicatorPosition = Alignment.BottomCenter,
-                            indicatorColor = IndicatorColor,
-                            shape = RoundedCornerShape(
-                                topStart = 6.dp,
-                                topEnd = 6.dp,
-                                bottomStart = 0.dp,
-                                bottomEnd = 0.dp
-                            ),
-                            selected = state.selectedTabIndex == index,
-                            onClick = {
-                                viewModel.onAction(
-                                    KAisStreamAction.OnTabSelected(index)
-                                )
-                            }
-                        )
+                    if (state.selectedVessel != null) {
+                        location?.let { loc ->
+                            RadarPage(
+                                viewModel = viewModel,
+                                state = state,
+                                location = loc,
+                                onAction = viewModel::onAction
+                            )
+                        }
+                    } else {
+                        TabButtonRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .drawBehind {
+                                    val strokeWidth = 2.dp.toPx()
+                                    drawLine(
+                                        color = MarineBlue,
+                                        start = Offset(0f, size.height - strokeWidth / 2),
+                                        end = Offset(size.width, size.height - strokeWidth / 2),
+                                        strokeWidth = strokeWidth
+                                    )
+                                },
+                            horizontalArrangement = Arrangement.spacedBy(0.dp),
+                            selectedTab = { state.selectedTabIndex },
+                            items = items
+                        ) { label, index ->
+                            IndicatorButton(
+                                buttonColor = MarineBlue,
+                                textColor = Color.White,
+                                width = screenWidth / 4 - 10.dp,
+                                height = 40.dp,
+                                text = label.asString(),
+                                textStyle = MaterialTheme.typography.titleSmall,
+                                indicatorPosition = Alignment.BottomCenter,
+                                indicatorColor = IndicatorColor,
+                                shape = RoundedCornerShape(
+                                    topStart = 6.dp,
+                                    topEnd = 6.dp,
+                                    bottomStart = 0.dp,
+                                    bottomEnd = 0.dp
+                                ),
+                                selected = state.selectedTabIndex == index,
+                                onClick = {
+                                    viewModel.onAction(
+                                        KAisStreamAction.OnTabSelected(index)
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }

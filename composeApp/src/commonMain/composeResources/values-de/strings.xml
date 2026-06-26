@@ -83,6 +83,7 @@
   <string name="label_url">Feed URL</string>
   <string name="label_useGpsLocation">Aktuelle GPS Position benutzen</string>
   <string name="label_width">Breite</string>
+  <string name="label_zoom">Zoom</string>
   <string name="labelknots">Knoten</string>
   <string name="language_de">Deutsch</string>
   <string name="language_en">Englisch</string>

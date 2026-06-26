@@ -1,8 +1,10 @@
 package de.visualdigits.kaisstream.presentation.model
 
 import androidx.compose.runtime.Immutable
+import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.ui.KeyValue
 import de.visualdigits.common.domain.model.ui.UiText
+import de.visualdigits.kaisstream.domain.model.geodata.AisDataUi
 import de.visualdigits.kaisstream.domain.model.settings.Settings
 import de.visualdigits.kaisstream.domain.model.type.Language
 import kotlinx.io.Sink
@@ -68,6 +70,17 @@ sealed interface KAisStreamAction {
         val fileName: String,
         val sink: Sink
     ): KAisStreamAction
+
+    //
+    // Vessels
+    //
+    data class OnShowRadar(
+        val location: Location?,
+        val vessels: List<AisDataUi>,
+        val selectedVessel: AisDataUi
+    ): KAisStreamAction
+
+    class OnShowRadarBack: KAisStreamAction
 
     //
     // Tabs

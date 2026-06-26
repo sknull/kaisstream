@@ -90,7 +90,7 @@ fun DataFieldsLandscape(
                 Icon(
                     modifier = Modifier
                         .height(30.dp)
-                        .rotate(data.heading.toFloat()),
+                        .rotate(data.heading.toFloat() - 180.0f),
                     painter = painterResource(Res.drawable.icon_direction_24px),
                     contentDescription = null,
                     tint = TextColor
