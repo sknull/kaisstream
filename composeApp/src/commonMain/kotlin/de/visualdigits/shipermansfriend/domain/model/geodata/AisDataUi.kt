@@ -6,6 +6,8 @@ import de.visualdigits.common.domain.model.geodata.Location
 import kotlin.math.cos
 import kotlin.math.sin
 
+const val KILOMETERS_PER_HOUR = 1.852
+
 private const val RADIUS_EARTH = 6371000.0
 private const val METERS_PER_SECOND = 0.514444
 
@@ -13,8 +15,6 @@ private const val MAX_EXTRAPOLATION_TIME = 600
 private const val MAX_EXTRAPOLATION_DISTANCE = 150.0
 private const val MAX_LINEAR_EXTRAPOLATION_TIME = 20
 private const val DAMPING_FACTOR = 0.05
-
-
 
 data class AisDataUi(
     val name: String,
@@ -24,6 +24,7 @@ data class AisDataUi(
     val location: Location,
     val isMoored: Boolean = true,
     val sog: Double = 0.0,
+    val speedKmh: String,
     val heading: Double = 0.0,
 
     val imoNumber: Long? = null,

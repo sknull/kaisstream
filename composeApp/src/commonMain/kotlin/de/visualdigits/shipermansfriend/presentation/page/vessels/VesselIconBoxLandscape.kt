@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import de.visualdigits.common.domain.util.copyFactor
 import de.visualdigits.common.presentation.components.Led
 import de.visualdigits.common.presentation.components.modifier.angledInnerShadow
-import de.visualdigits.common.presentation.components.util.conditional
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 import de.visualdigits.shipermansfriend.presentation.style.LightGray
@@ -81,16 +80,15 @@ fun VesselIconBoxLandscape(
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
             ) {
                 Icon(
-                    modifier = Modifier
-                        .conditional(iconWidth < cardHeight) { width(iconWidth - 10.dp) }
-                        .conditional(iconWidth >= cardHeight) { height(cardHeight - 50.dp) },
+//                    modifier = Modifier
+//                        .conditional(iconWidth < cardHeight) { width(iconWidth - 10.dp) }
+//                        .conditional(iconWidth >= cardHeight) { height(cardHeight - 50.dp) },
                     painter = painterResource(shipType.category.icon),
                     contentDescription = shipType.category.name,
                     tint = LightGray,
                 )
 
                 Text(
-                    modifier = Modifier,
                     text = shipType.category.name,
                     style = MaterialTheme.typography.bodySmall,
                     color = LightGray

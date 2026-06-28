@@ -1,5 +1,7 @@
 package de.visualdigits.shipermansfriend.data.repository
 
+import co.touchlab.kermit.Severity
+import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
 import de.visualdigits.common.domain.model.errorhandling.Result
 import de.visualdigits.shipermansfriend.ShipermansFriendDatabaseQueries
 import de.visualdigits.shipermansfriend.data.database.toMasterData
@@ -100,9 +102,11 @@ class DefaultMasterDataRepository(
             val json = source.use { ins ->
                 ins.readString()
             }
-            jsonMapper
+            val entities = jsonMapper
                 .decodeFromString<List<MasterDataDatabaseEntity>>(json)
                 .filter { mde -> mde.mmsi != 0L }
+            log(Severity.Info, "Importing ${entities.size} master data entries into database...", withTag = "AIS")
+            entities
                 .forEach { mde ->
                     dao.upsertMasterData(
                         messageType = mde.messageType,
@@ -118,8 +122,10 @@ class DefaultMasterDataRepository(
                         maximumStaticDraught = mde.maximumStaticDraught,
                     )
                 }
+            log(Severity.Info, "Import was successful", withTag = "AIS")
             Result.Success(Unit)
         } catch (e: Exception) {
+            log(Severity.Error, "Could not import master data", e, withTag = "AIS")
             Result.Error(DataError.Local.SERIALIZATION, e)
         }
     }

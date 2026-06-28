@@ -18,15 +18,13 @@ import de.visualdigits.common.presentation.model.CommonAction
 import de.visualdigits.common.presentation.model.ScrollIntent
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.error_local_wrong_filetype
-import de.visualdigits.compose.resources.tab_driving_vessels
-import de.visualdigits.compose.resources.tab_moored_vessels
-import de.visualdigits.compose.resources.tab_search
-import de.visualdigits.compose.resources.tab_settings
 import de.visualdigits.generated.AppVersion
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.status.ServiceState
 import de.visualdigits.shipermansfriend.data.repository.AisStreamClient
+import de.visualdigits.shipermansfriend.domain.model.errorhandling.DataError
 import de.visualdigits.shipermansfriend.domain.model.errorhandling.toUiText
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
+import de.visualdigits.shipermansfriend.domain.model.geodata.KILOMETERS_PER_HOUR
 import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
 import de.visualdigits.shipermansfriend.domain.model.geodata.PositionData
 import de.visualdigits.shipermansfriend.domain.model.geodata.ReceiverState
@@ -89,7 +87,8 @@ class ShipermansFriendViewModel(
 
     private val _positionData = MutableStateFlow<Map<Long, PositionData>>(emptyMap())
     private val _masterData = MutableStateFlow<Map<Long, MasterData>>(emptyMap())
-    private val _safetyData = MutableStateFlow<Map<Long, SafetyData>>(emptyMap())
+    private val _safetyData = MutableStateFlow<List<SafetyData>>(emptyList())
+    val safetyData = _safetyData.asStateFlow()
 
     companion object {
 
@@ -113,15 +112,16 @@ class ShipermansFriendViewModel(
 
         onAction(ShipermansFriendAction.OnInitializeTabs(
             tabLabels = listOf(
-                "driving_vessels" to UiText.StringResourceId(Res.string.tab_driving_vessels),
-                "moored_vessels" to UiText.StringResourceId(Res.string.tab_moored_vessels),
-                "search" to UiText.StringResourceId(Res.string.tab_search),
-                "settings" to UiText.StringResourceId(Res.string.tab_settings),
+                "driving_vessels" to UiText.DynamicString(""),
+                "moored_vessels" to UiText.DynamicString(""),
+                "search" to UiText.DynamicString(""),
+                "settings" to UiText.DynamicString(""),
+                "safety" to UiText.DynamicString(""),
                 "info" to UiText.DynamicString(""),
             )
         ))
 
-        aisStreamClient.start()
+        startAisClient()
 
         // message collection loop
         scope.launch {
@@ -133,7 +133,7 @@ class ShipermansFriendViewModel(
                     aisStreamClient._receiverState.update { ReceiverState.receivingData }
 
                     when (message) {
-                        // collects master data within the outer bounds the client was configured with
+                        // collects master data within the outer bounds
                         is MasterData -> {
                             _masterData.update { current ->
                                 val mutableCopy = current.toMutableMap()
@@ -145,7 +145,7 @@ class ShipermansFriendViewModel(
                                     log(Severity.Error, "Could not insert master data for mmsi '${message.mmsi}'", throwable, withTag = "AIS")
                                 }
                         }
-                        // collects position data within the inner bounds the client was configured with
+                        // collects position data within the inner bounds
                         is PositionData -> {
                             if (aisStreamClient.innerBoundingBox.value?.let { bb -> message.location.isInBoundingBox(bb) } == true) {
                                 _positionData.update { current ->
@@ -165,12 +165,20 @@ class ShipermansFriendViewModel(
                                 }
                             }
                         }
+                        // collects safety data within the outer bounds
                         is SafetyData -> {
                             log(Severity.Info, message.toString(), withTag = "SFTY")
-                            _safetyData.update { current ->
-                                val mutableCopy = current.toMutableMap()
-                                mutableCopy[message.mmsi] = message
-                                mutableCopy
+                            if (message.valid && message.text?.isNotBlank() == true) {
+                                _safetyData.update { current ->
+                                    val mutableCopy = current.toMutableList()
+                                    mutableCopy += message
+                                    mutableCopy.sortedByDescending { sd -> sd.timeUtc }
+                                }
+                                _state.update {
+                                    it.copy(
+                                        hasUnreadSafetyData = true
+                                    )
+                                }
                             }
                         }
                     }
@@ -190,7 +198,7 @@ class ShipermansFriendViewModel(
                         if (retryCount.value < 3) {
                             if (connectivityManager.connectivityMode() != ConnectivityMode.disconnected) {
                                 log(Severity.Info, "ConnectivityManager reports connectivity is back - starting client", withTag = "AIS")
-                                aisStreamClient.start()
+                                startAisClient()
                             } else {
                                 log(Severity.Info, "Waiting for next attempt [${state.delayUntilNextState.inWholeSeconds} seconds]", withTag = "AIS")
                                 retryCount.update { current -> current + 1 }
@@ -211,45 +219,29 @@ class ShipermansFriendViewModel(
                 }
         }
 
-        // monitor location change
-        scope.launch {
-            while (isActive) {
-                if (aisStreamClient.location.value != aisStreamClient._previousLocation.value) {
-                    log(Severity.Info, "Location changed - clearing position data")
-                    aisStreamClient._previousLocation.update { aisStreamClient.location.value }
-                    _positionData.update { emptyMap() }
-                }
-                delay(500.milliseconds)
-            }
-        }
-
-        // monitor service state
+        // collect service state
         scope.launch {
             while (isActive) {
                 val serviceStatus = withContext(Dispatchers.IO) {
                     aisStreamClient.serviceStatus()
                 }
                 _serviceState.update { serviceStatus?.state }
+
                 delay(10.seconds)
             }
         }
 
-        // monitor server state
+        // monitor service state using inofficial api
         scope.launch {
             while (isActive) {
                 val lastMsgTime = aisStreamClient.lastMessage.value
                 val minutesSinceLastMessage = KmpOffsetDateTime.now().minus(lastMsgTime)
-
                 if (minutesSinceLastMessage > MAX_INACTIVITY_MINUTES && aisStreamClient.receiverState.value == ReceiverState.noData) {
                     log(Severity.Info, "No messages for $minutesSinceLastMessage minutes. Checking Health Endpoint...", withTag = "AIS")
-
                     if (_serviceState.value == ServiceState.Down) {
+                        log(Severity.Warn, "Health api reported server down", withTag = "AIS")
                         aisStreamClient._receiverState.update { ReceiverState.serverDown }
-                    } else {
-                        aisStreamClient._receiverState.update { ReceiverState.connectionLost }
                     }
-
-                    delay(4.minutes + 30.seconds) // extra delay to make sure we check status not too often
                 }
 
                 delay(30.seconds)
@@ -278,6 +270,7 @@ class ShipermansFriendViewModel(
                         location = positionData.location,
                         isMoored = positionData.sog < 0.5,
                         sog = positionData.sog,
+                        speedKmh = "${positionData.sog * KILOMETERS_PER_HOUR} Km/h",
                         heading = positionData.heading,
                         imoNumber = md?.imoNumber,
                         callSign = md?.callSign,
@@ -399,7 +392,7 @@ class ShipermansFriendViewModel(
             }
 
             is ShipermansFriendAction.OnReconnect -> {
-                aisStreamClient.start()
+                startAisClient()
             }
 
             is ShipermansFriendAction.UpdateMaxImageSize -> {
@@ -433,10 +426,16 @@ class ShipermansFriendViewModel(
                 if (state.value.tabLabels[action.index].first == "settings") {
                     _editedSettings.value = state.value.settings
                 }
+                val hasUnreadSafetyData = if (state.value.tabLabels[action.index].first != "safety") {
+                    false
+                } else {
+                    state.value.hasUnreadSafetyData
+                }
                 _state.update { state ->
                     state.copy(
                         selectedTabIndex = action.index,
                         isEditingSettings = false,
+                        hasUnreadSafetyData = hasUnreadSafetyData,
                         isShowInfos = false,
                         uiMessage = null,
                         uiMessageSeverity = null,
@@ -477,6 +476,18 @@ class ShipermansFriendViewModel(
             //
             //
             //
+            is ShipermansFriendAction.OnRadarRadiusChange -> {
+                if (action.radius < _state.value.currentRadarRadius) {
+                    updateRadarRadius(action.radius)
+                }
+                _state.update {
+                    it.copy(
+                        previousRadarRadius = it.currentRadarRadius,
+                        currentRadarRadius = action.radius
+                    )
+                }
+            }
+
             is ShipermansFriendAction.OnCollapsibleStateChange -> {
                 _state.update {
                     it.copy(
@@ -515,13 +526,27 @@ class ShipermansFriendViewModel(
         }
     }
 
+    private fun updateRadarRadius(radius: Double) {
+        aisStreamClient.location.value?.also { location ->
+            val boundingBox = location.calculateBoundingBox(radius)
+            _positionData.update { current ->
+                val copy = current
+                    .toMutableMap()
+                    .filter { (_, positionData) ->
+                        positionData.location.isInBoundingBox(boundingBox)
+                    }
+                copy
+            }
+        }
+    }
+
     private fun importSettings(fileName: String, source: Source) = viewModelScope.launch {
         log(Severity.Info, "Importing settings", withTag = "AIS")
         if (fileName.endsWith(".json", ignoreCase = true)) {
             val settingsResult = settingsRepository.importSettings(source)
             if (settingsResult is Result.Success) {
                 val settings = settingsResult.data
-                aisStreamClient.start()
+                startAisClient()
                 _state.update {
                     it.copy(
                         settings = settings,
@@ -589,7 +614,6 @@ class ShipermansFriendViewModel(
     }
 
     private fun importMasterData(fileName: String, source: Source) = viewModelScope.launch {
-        log(Severity.Info, "Importing masterdata", withTag = "AIS")
         if (fileName.endsWith(".json", ignoreCase = true)) {
             masterDataRepository.importMasterData(source)
                 .onSuccess { _ ->
@@ -677,10 +701,12 @@ class ShipermansFriendViewModel(
             }
 
             applyAppLanguage(finalSettings.get<Language>(SK.language)?.localeCode?: Language.EN.localeCode)
+            val radarRadius = finalSettings.get<String>(SK.radiusInner)?.toDouble()?:1000.0
 
             _state.update {
                 it.copy(
                     settings = finalSettings,
+                    currentRadarRadius = radarRadius,
                     currentProgress = 0.0f,
                     progressStage = ProgressStage.NONE,
                     uiMessage = null,
@@ -702,18 +728,22 @@ class ShipermansFriendViewModel(
     }
 
     private fun saveSettings(
-        editedSettings: Settings?,
+        settings: Settings?,
     ) = viewModelScope.launch {
-        checkNotNull(editedSettings) { "No settings to save" }
-        settingsRepository.setSettings(editedSettings)
+        checkNotNull(settings) { "No settings to save" }
+        settingsRepository.setSettings(settings)
             .onSuccess {
-                val language = editedSettings.get<Language>(SK.language) ?: Language.EN
+                val language = settings.get<Language>(SK.language) ?: Language.EN
                 applyAppLanguage(language.localeCode)
+                val radarRadius = settings.get<String>(SK.radiusInner)?.toDouble() ?: 1000.0
+                updateRadarRadius(radarRadius)
                 _editedSettings.value = null
                 _state.update {
                     it.copy(
-                        settings = editedSettings,
+                        settings = settings,
                         currentProgress = 0.0f,
+                        previousRadarRadius = it.currentRadarRadius,
+                        currentRadarRadius = radarRadius,
                         progressStage = ProgressStage.NONE,
                         isEditingSettings = false,
                         selectedTabIndex = 0,
@@ -736,6 +766,24 @@ class ShipermansFriendViewModel(
                 }
             }
 
-        aisStreamClient.start()
+        startAisClient()
+    }
+
+    private fun startAisClient() {
+        try {
+            aisStreamClient.start()
+        } catch (_: Exception) {
+            _state.update {
+                it.copy(
+                    currentProgress = 0.0f,
+                    isEditingSettings = false,
+                    selectedTabIndex = 0,
+                    progressStage = ProgressStage.NONE,
+                    uiMessage = DataError.Remote.CONNECTION_ERROR.toUiText(),
+                    uiMessageSeverity = Severity.Error
+                )
+            }
+
+        }
     }
 }

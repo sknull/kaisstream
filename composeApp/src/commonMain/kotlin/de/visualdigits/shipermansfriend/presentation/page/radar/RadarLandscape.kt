@@ -28,7 +28,7 @@ fun RadarLandscape(
     currentRadarRadius: Double,
     selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
-    activeHoverVesselState: MutableState<AisDataUi?>,
+    activeHoverVesselState: MutableState<List<AisDataUi>>,
     imageHeading: ImageBitmap,
     colorBackground: Color,
     colorGrid: Color
@@ -61,14 +61,7 @@ fun RadarLandscape(
                     colorBackground = colorBackground,
                     colorGrid = colorGrid
                 )
-            }
 
-            Box(
-                modifier = Modifier
-                    .height(50.dp)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
                 HoveredVesselBox(
                     activeHoverVesselState = activeHoverVesselState
                 )

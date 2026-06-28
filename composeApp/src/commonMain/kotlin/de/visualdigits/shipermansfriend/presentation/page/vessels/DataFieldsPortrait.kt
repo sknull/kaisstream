@@ -70,7 +70,7 @@ fun DataFieldsPortrait(
                 .clip(MaterialTheme.shapes.extraSmall)
                 .background(MarineBlueLighter)
                 .width(cellWidth * 2 - MaterialTheme.shapes.gap * 3)
-                .height(cellHeight)
+                .height(cellHeight + 10.dp)
                 .padding(MaterialTheme.shapes.gap),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
         ) {
@@ -86,10 +86,17 @@ fun DataFieldsPortrait(
                 contentDescription = null,
                 tint = TextColor
             )
-            Text(
-                text = if (!data.isMoored) "${data.sog} ${stringResource(Res.string.label_knots)}" else stringResource(Res.string.label_moored),
-                style = MaterialTheme.typography.labelMedium
-            )
+            Column(
+            ) {
+                Text(
+                    text = if (!data.isMoored) "${data.sog} ${stringResource(Res.string.label_knots)}" else stringResource(Res.string.label_moored),
+                    style = MaterialTheme.typography.labelSmall
+                )
+                Text(
+                    text = if (!data.isMoored) data.speedKmh else "",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
 
         Row(
@@ -178,152 +185,162 @@ fun DataFieldsPortrait(
         )
 
         val enabledImo = data.imoNumber?.equals(0L) == false
-        IndicatorButton(
-            modifier = Modifier
-                .fillMaxWidth(),
-            buttonColor = MarineBlueLight,
-            textColor = if (enabledImo) Color.White else Color.Gray,
-            horizontalArrangement = Arrangement.Start,
-            width = Dp.Unspecified,
-            height = cellHeight,
-            enabled = enabledImo,
-            onClick = {
-                routePlatformLink("https://www.startpage.com/do/dsearch?query=imo%20${data.imoNumber}")
-            },
-            content = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
-                ) {
-                    Text(
+        if (enabledImo) {
+            IndicatorButton(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                buttonColor = MarineBlueLight,
+                textColor = if (enabledImo) Color.White else Color.Gray,
+                horizontalArrangement = Arrangement.Start,
+                width = Dp.Unspecified,
+                height = cellHeight,
+                enabled = enabledImo,
+                onClick = {
+                    routePlatformLink("https://www.startpage.com/do/dsearch?query=imo%20${data.imoNumber}")
+                },
+                content = {
+                    Row(
                         modifier = Modifier
-                            .width(labelWidth),
-                        text = "IMO",
-                        textAlign = TextAlign.Start,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = if (enabledImo) Color.White else Color.Gray,
-                    )
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .width(labelWidth),
+                            text = "IMO",
+                            textAlign = TextAlign.Start,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White,
+                        )
 
-                    Text(
-                        modifier = Modifier
-                            .width(valueWidth),
-                        text = if (enabledImo) data.imoNumber.toString() else "?",
-                        textAlign = TextAlign.Start,
-                        style = if (isHovered) MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline) else MaterialTheme.typography.bodySmall,
-                        color = if (enabledImo) Color.White else Color.Gray,
-                    )
+                        Text(
+                            modifier = Modifier
+                                .width(valueWidth),
+                            text = data.imoNumber.toString(),
+                            textAlign = TextAlign.Start,
+                            style = if (isHovered) MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline) else MaterialTheme.typography.bodySmall,
+                            color = Color.White,
+                        )
+                    }
                 }
-            }
-        )
+            )
+        }
 
         val enabledCallsign = data.callSign != null
-        IndicatorButton(
-            modifier = Modifier
-                .fillMaxWidth(),
-            buttonColor = MarineBlueLight,
-            textColor = if (enabledCallsign) Color.White else Color.Gray,
-            horizontalArrangement = Arrangement.Start,
-            width = Dp.Unspecified,
-            height = cellHeight,
-            enabled = enabledCallsign,
-            onClick = {
-                routePlatformLink("https://www.startpage.com/do/dsearch?query=callsign%20${data.callSign}")
-            },
-            content = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
-                ) {
-                    Text(
+        if (enabledCallsign) {
+            IndicatorButton(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                buttonColor = MarineBlueLight,
+                textColor = Color.White,
+                horizontalArrangement = Arrangement.Start,
+                width = Dp.Unspecified,
+                height = cellHeight,
+                enabled = enabledCallsign,
+                onClick = {
+                    routePlatformLink("https://www.startpage.com/do/dsearch?query=callsign%20${data.callSign}")
+                },
+                content = {
+                    Row(
                         modifier = Modifier
-                            .width(labelWidth),
-                        text = stringResource(Res.string.label_callsign),
-                        textAlign = TextAlign.Start,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = if (enabledCallsign) Color.White else Color.Gray,
-                    )
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .width(labelWidth),
+                            text = stringResource(Res.string.label_callsign),
+                            textAlign = TextAlign.Start,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White,
+                        )
 
-                    Text(
-                        modifier = Modifier
-                            .width(valueWidth),
-                        text = data.callSign ?: "?",
-                        textAlign = TextAlign.Start,
-                        style = if (isHovered) MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline) else MaterialTheme.typography.bodySmall,
-                        color = if (enabledCallsign) Color.White else Color.Gray,
-                    )
+                        Text(
+                            modifier = Modifier
+                                .width(valueWidth),
+                            text = data.callSign ?: "?",
+                            textAlign = TextAlign.Start,
+                            style = if (isHovered) MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline) else MaterialTheme.typography.bodySmall,
+                            color = Color.White,
+                        )
+                    }
                 }
+            )
+        }
+
+        if (data.maximumStaticDraught != null) {
+            Row(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .background(MarineBlueLighter)
+                    .width(cellWidth * 2 - MaterialTheme.shapes.gap * 3)
+                    .height(cellHeight)
+                    .padding(MaterialTheme.shapes.gap),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+            ) {
+                Text(
+                    modifier = Modifier
+                        .width(labelWidth),
+                    text = stringResource(Res.string.label_maxDraught),
+                    style = MaterialTheme.typography.labelSmall
+                )
+                Text(
+                    modifier = Modifier
+                        .width(valueWidth),
+                    text = "${data.maximumStaticDraught} m",
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
-        )
-
-        Row(
-            modifier = Modifier
-                .clip(MaterialTheme.shapes.extraSmall)
-                .background(MarineBlueLighter)
-                .width(cellWidth * 2 - MaterialTheme.shapes.gap * 3)
-                .height(cellHeight)
-                .padding(MaterialTheme.shapes.gap),
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
-        ) {
-            Text(
-                modifier = Modifier
-                    .width(labelWidth),
-                text = stringResource(Res.string.label_maxDraught),
-                style = MaterialTheme.typography.labelSmall
-            )
-            Text(
-                modifier = Modifier
-                    .width(valueWidth),
-                text = data.maximumStaticDraught?.let { l -> "$l m" } ?: "?",
-                style = MaterialTheme.typography.bodySmall
-            )
         }
 
-        Row(
-            modifier = Modifier
-                .clip(MaterialTheme.shapes.extraSmall)
-                .background(MarineBlueLighter)
-                .width(cellWidth * 2 - MaterialTheme.shapes.gap * 3)
-                .height(cellHeight)
-                .padding(MaterialTheme.shapes.gap),
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
-        ) {
-            Text(
+        if (data.totalLength != null) {
+            Row(
                 modifier = Modifier
-                    .width(labelWidth),
-                text = stringResource(Res.string.label_length),
-                style = MaterialTheme.typography.labelSmall
-            )
-            Text(
-                modifier = Modifier
-                    .width(valueWidth),
-                text = data.totalLength?.let { l -> "$l m" } ?: "?",
-                style = MaterialTheme.typography.bodySmall
-            )
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .background(MarineBlueLighter)
+                    .width(cellWidth * 2 - MaterialTheme.shapes.gap * 3)
+                    .height(cellHeight)
+                    .padding(MaterialTheme.shapes.gap),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+            ) {
+                Text(
+                    modifier = Modifier
+                        .width(labelWidth),
+                    text = stringResource(Res.string.label_length),
+                    style = MaterialTheme.typography.labelSmall
+                )
+                Text(
+                    modifier = Modifier
+                        .width(valueWidth),
+                    text = "${data.totalLength} m",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
 
-        Row(
-            modifier = Modifier
-                .clip(MaterialTheme.shapes.extraSmall)
-                .background(MarineBlueLighter)
-                .width(cellWidth * 2 - MaterialTheme.shapes.gap * 3)
-                .height(cellHeight)
-                .padding(MaterialTheme.shapes.gap),
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
-        ) {
-            Text(
+        if (data.totalWidth != null) {
+            Row(
                 modifier = Modifier
-                    .width(labelWidth),
-                text = stringResource(Res.string.label_width),
-                style = MaterialTheme.typography.labelSmall
-            )
-            Text(
-                modifier = Modifier
-                    .width(valueWidth),
-                text = data.totalWidth?.let { w -> "$w m" } ?: "?",
-                style = MaterialTheme.typography.bodySmall
-            )
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .background(MarineBlueLighter)
+                    .width(cellWidth * 2 - MaterialTheme.shapes.gap * 3)
+                    .height(cellHeight)
+                    .padding(MaterialTheme.shapes.gap),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+            ) {
+                Text(
+                    modifier = Modifier
+                        .width(labelWidth),
+                    text = stringResource(Res.string.label_width),
+                    style = MaterialTheme.typography.labelSmall
+                )
+                Text(
+                    modifier = Modifier
+                        .width(valueWidth),
+                    text = "${data.totalWidth} m",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
     }
 }

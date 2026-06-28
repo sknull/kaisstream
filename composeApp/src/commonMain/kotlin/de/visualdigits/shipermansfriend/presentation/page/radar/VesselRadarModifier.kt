@@ -101,62 +101,65 @@ private fun ContentDrawScope.drawVessel(
         maxRadarDistanceMeters = maxRadarDistanceMeters,
         center = drawCenter
     )
-    val size = vessel.calculateRadarSize(radarRadiusPx, maxRadarDistanceMeters)
 
-    if (isSelected) {
-        // pulsing circle
-        val fraction = currentPulseRadius / 24f
-        drawCircle(
-            color = Color.White.copy(alpha = 1f - fraction), // Wird nach außen transparenter
-            style = Fill,
-            radius = currentPulseRadius,
-            center = offset
-        )
-    }
+    if (offset != Offset.Unspecified) {
+        val size = vessel.calculateRadarSize(radarRadiusPx, maxRadarDistanceMeters)
 
-    if (vessel.sog > 0.5) {
-        withTransform({
-            scale(
-                scaleX = 0.25f,
-                scaleY = 0.25f,
-                pivot = offset
-            )
-            rotate(
-                degrees = vessel.heading.toFloat(),
-                pivot = offset
-            )
-        }) {
-            drawImage(
-                image = image,
-                dstOffset = IntOffset(x = (offset.x - 48).roundToInt(), y = (offset.y - 48).roundToInt()),
-                dstSize = IntSize(width = 96, height = 96),
-                colorFilter = ColorFilter.tint(
-                    color = color,
-                    blendMode = BlendMode.SrcIn
-                )
-            )
-        }
-    } else {
-        if (size == Size.Unspecified) {
+        if (isSelected) {
+            // pulsing circle
+            val fraction = currentPulseRadius / 24f
             drawCircle(
-                color = if (isSelected) color else color.copy(alpha = 0.5f),
+                color = Color.White.copy(alpha = 1f - fraction), // Wird nach außen transparenter
                 style = Fill,
-                radius = 5.0f,
+                radius = currentPulseRadius,
                 center = offset
             )
-        } else {
+        }
+
+        if (vessel.sog > 0.5) {
             withTransform({
+                scale(
+                    scaleX = 0.25f,
+                    scaleY = 0.25f,
+                    pivot = offset
+                )
                 rotate(
                     degrees = vessel.heading.toFloat(),
                     pivot = offset
                 )
             }) {
-                drawRect(
+                drawImage(
+                    image = image,
+                    dstOffset = IntOffset(x = (offset.x - 48).roundToInt(), y = (offset.y - 48).roundToInt()),
+                    dstSize = IntSize(width = 96, height = 96),
+                    colorFilter = ColorFilter.tint(
+                        color = color,
+                        blendMode = BlendMode.SrcIn
+                    )
+                )
+            }
+        } else {
+            if (size == Size.Unspecified) {
+                drawCircle(
                     color = if (isSelected) color else color.copy(alpha = 0.5f),
                     style = Fill,
-                    size = size,
-                    topLeft = Offset(x = offset.x - size.width, y = offset.y - size.height)
+                    radius = 5.0f,
+                    center = offset
                 )
+            } else {
+                withTransform({
+                    rotate(
+                        degrees = vessel.heading.toFloat(),
+                        pivot = offset
+                    )
+                }) {
+                    drawRect(
+                        color = if (isSelected) color else color.copy(alpha = 0.5f),
+                        style = Fill,
+                        size = size,
+                        topLeft = Offset(x = offset.x - size.width, y = offset.y - size.height)
+                    )
+                }
             }
         }
     }

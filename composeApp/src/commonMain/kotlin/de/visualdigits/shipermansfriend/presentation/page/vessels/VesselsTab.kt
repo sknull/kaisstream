@@ -11,9 +11,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -28,13 +28,12 @@ import de.visualdigits.shipermansfriend.presentation.style.gap
 
 
 @Composable
-fun VesselsPage(
+fun VesselsTab(
     viewModel: ShipermansFriendViewModel,
     aisStreamClient: AisStreamClient,
     platformType: PlatformType,
     screenWidth: Dp,
     screenHeight: Dp,
-    uriHandler: UriHandler,
     isMoored: Boolean,
     onAction: (ShipermansFriendAction) -> Unit,
     location: () -> Location?
@@ -43,6 +42,7 @@ fun VesselsPage(
     val lastLocationUpdate by aisStreamClient.lastLocationUpdateMinutes.collectAsStateWithLifecycle()
 
     val uiVesselsList by viewModel.uiVessels.collectAsState()
+    val innerRadius by aisStreamClient.innerRadius.collectAsState()
     val vessels = uiVesselsList.filter { it.isMoored == isMoored}
     val locationValue = location()
 
@@ -56,6 +56,8 @@ fun VesselsPage(
             locationValue = locationValue,
             receiverState = receiverState,
             lastLocationUpdate = lastLocationUpdate,
+            currentRadarRadius = innerRadius,
+            vesselNumber = vessels.size,
             onAction = viewModel::onAction
         )
 
@@ -78,16 +80,17 @@ fun VesselsPage(
         ) {
             if (vessels.isNotEmpty()) {
                 vessels.mapIndexed { index, vessel ->
-                    Pair("entry_$index", @Composable {
-                        VesselCard(
-                            uriHandler = uriHandler,
-                            screenWidth = screenWidth,
-                            screenHeight = screenHeight,
-                            location = locationValue,
-                            vessels = vessels,
-                            selectedVessel = vessel,
-                            onAction = onAction
-                        )
+                    Pair("entry_${vessel.mmsi}", @Composable {
+                        key("entry_${vessel.mmsi}") {
+                            VesselCard(
+                                screenWidth = screenWidth,
+                                screenHeight = screenHeight,
+                                location = locationValue,
+                                vessels = vessels,
+                                selectedVessel = vessel,
+                                onAction = onAction
+                            )
+                        }
                     })
                 }
             } else listOf()

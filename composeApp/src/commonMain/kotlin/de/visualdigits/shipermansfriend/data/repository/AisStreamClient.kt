@@ -93,6 +93,9 @@ class AisStreamClient(
     val _receiverState = MutableStateFlow(ReceiverState.noData)
     val receiverState: StateFlow<ReceiverState> = _receiverState.asStateFlow()
 
+    val _innerRadius = MutableStateFlow(1000.0)
+    val innerRadius: StateFlow<Double> = _innerRadius.asStateFlow()
+
     val innerBoundingBox = MutableStateFlow<BoundingBox?>(null)
 
     val messages: Flow<AisData> = messageChannel
@@ -119,12 +122,12 @@ class AisStreamClient(
                     val savedKey = settings.get<String>(SK.aisstreamApiKey)
                     val useGpsLocation = settings.get<BooleanEnum>(SK.useGpsLocation)?.booleanValue ?: false
                     val outerRadius = settings.get<String>(SK.radiusOuter)?.toDoubleOrNull()
-                    val innerRadius = settings.get<String>(SK.radiusInner)?.toDoubleOrNull()
+                    _innerRadius.update { settings.get<String>(SK.radiusInner)?.toDouble() ?: 1000.0 }
                     val dbLocation = settings.get<String>(SK.location)?.toLocation()
 
                     if (savedKey?.isNotBlank() == true && outerRadius != null && innerRadius != null) {
                         if (useGpsLocation) {
-                            log(Severity.Warn, "GPS active. Starting location observation...", withTag = "AIS")
+                            log(Severity.Info, "GPS active. Starting location observation...", withTag = "AIS")
 
                             val fallbackJob = launch {
                                 delay(4.seconds)
@@ -134,7 +137,7 @@ class AisStreamClient(
                                         targetLocation = dbLocation,
                                         savedKey = savedKey,
                                         outerRadius = outerRadius,
-                                        innerRadius = innerRadius,
+                                        innerRadius = _innerRadius.value,
                                         useGpsLocation = false
                                     )
                                 }
@@ -148,7 +151,7 @@ class AisStreamClient(
                                         targetLocation = currentGpsLocation,
                                         savedKey = savedKey,
                                         outerRadius = outerRadius,
-                                        innerRadius = innerRadius,
+                                        innerRadius = _innerRadius.value,
                                         useGpsLocation = true
                                     )
                                 }
@@ -159,7 +162,7 @@ class AisStreamClient(
                                     targetLocation = dbLocation,
                                     savedKey = savedKey,
                                     outerRadius = outerRadius,
-                                    innerRadius = innerRadius,
+                                    innerRadius = _innerRadius.value,
                                     useGpsLocation = false
                                 )
                             }
@@ -221,7 +224,6 @@ class AisStreamClient(
     fun start(apiKey: ApiKey) {
         if (activeApiKey == apiKey && streamJob?.isActive == true) {
             log(Severity.Info, "Client is running already with same parameters.", withTag = "AIS")
-            return
         }
 
         activeApiKey = apiKey
@@ -241,7 +243,7 @@ class AisStreamClient(
             try {
                 httpClient.wss(urlString = HOST_URI) {
                     // do not receive organizational or binary messages
-                    val authJson = aisJson.encodeToString(apiKey)
+                    val authJson = aisJson.encodeToString(apiKey.copy(filterMessageTypes = MessageType.MESSSAGES_OF_INTEREST))
                     send(Frame.Text(authJson))
 
                     for (frame in incoming) {
@@ -305,6 +307,7 @@ class AisStreamClient(
                         }
                     }
                 }
+                Result.Success(Unit)
             } catch (_: CancellationException) {
                 // DO NOT close the messageChannel inside finally or catch!
                 // Just log that the switch happened as intended
@@ -312,6 +315,7 @@ class AisStreamClient(
             } catch (e: Exception) {
                 _receiverState.update { ReceiverState.connectionLost }
                 log(Severity.Error, "Connection error", e, withTag = "AIS")
+                throw e
             }
         }
     }

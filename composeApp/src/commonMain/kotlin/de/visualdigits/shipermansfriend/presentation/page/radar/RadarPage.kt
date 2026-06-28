@@ -33,10 +33,9 @@ fun RadarPage(
 ) {
 
     val radiusInner = state.settings?.get<String>(SK.radiusInner)?.toDouble()?:1000.0
-    var currentRadarRadius by remember { mutableStateOf(radiusInner) }
 
     val selectedVessel = state.selectedVessel!!
-    val activeHoverVesselState = remember { mutableStateOf<AisDataUi?>(null) }
+    val activeHoverVesselState = remember { mutableStateOf<List<AisDataUi>>(emptyList()) }
 
     val vessels by viewModel.uiVessels.collectAsStateWithLifecycle()
 
@@ -50,8 +49,10 @@ fun RadarPage(
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
     ) {
         RadarPageMenuBar(
-            currentRadarRadius = currentRadarRadius,
-            setCurrentRadarRadius = { radius -> currentRadarRadius = radius },
+            currentRadarRadius = state.currentRadarRadius,
+            setCurrentRadarRadius = { radius ->
+                onAction(ShipermansFriendAction.OnRadarRadiusChange(radius))
+            },
             radiusInner = radiusInner,
             selectedVessel = selectedVessel,
             onAction = onAction
@@ -60,7 +61,7 @@ fun RadarPage(
         if (isLandscape) {
             RadarLandscape(
                 location,
-                currentRadarRadius,
+                state.currentRadarRadius,
                 selectedVessel,
                 vessels,
                 activeHoverVesselState,
@@ -71,7 +72,7 @@ fun RadarPage(
         } else {
             RadarPortrait(
                 location,
-                currentRadarRadius,
+                state.currentRadarRadius,
                 selectedVessel,
                 vessels,
                 activeHoverVesselState,

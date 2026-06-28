@@ -3,7 +3,6 @@ package de.visualdigits.shipermansfriend.data.model.aisstreamio.data
 import de.visualdigits.common.domain.model.geodata.Location
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlin.math.round
 
 @Serializable
 data class PositionReport(

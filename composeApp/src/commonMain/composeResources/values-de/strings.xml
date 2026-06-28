@@ -12,6 +12,7 @@
   <string name="dialog_title_import_settings">Einstellungen wählen</string>
   <string name="edit">Bearbeiten</string>
   <string name="edit_hint">Bearbeiten...</string>
+  <string name="error_local_connection_error">Fehler beim verbinden.</string>
   <string name="error_local_disk_full">Die Festplatte ist voll.</string>
   <string name="error_local_file_not_found">Datei nicht gefunden.</string>
   <string name="error_local_serialization">Ergebnis konnte nicht analysiert werden.</string>
@@ -27,6 +28,7 @@
   <string name="group_aisstream">AIS Stream</string>
   <string name="group_display_theme">Display Thema</string>
   <string name="group_settings">Einstellungen</string>
+  <string name="hint_safety_messages">Die Sicherheitsnachrichten haben keine Koordinaten und beziehen sich daher auf die äußere Suchbox. Bitte beachte, daß die Meldungen sich nicht unbedingt auf die innere Suchbox beziehen müssen.</string>
   <string name="label_Cargo">Fracht</string>
   <string name="label_Fishing">Fischerboot</string>
   <string name="label_HSC">Schnellboot</string>
@@ -73,7 +75,7 @@
   <string name="label_radiusOuter">Äußerer Radius</string>
   <string name="label_refresh_interval">Aktualisierungsintervall</string>
   <string name="label_refresh_wifi_only">Nur im Wlan aktualisieren.</string>
-  <string name="label_search_placeholder">Suche nach Name, MMSI, IMO oder Callsign</string>
+  <string name="label_search_placeholder">Name, MMSI, IMO, Callsign</string>
   <string name="label_service_down">Aisstream ist offline</string>
   <string name="label_service_unknown">Keine Information verfügbar</string>
   <string name="label_service_up">Aisstream ist online</string>
@@ -83,6 +85,7 @@
   <string name="label_textColor">Text Farbe</string>
   <string name="label_url">Feed URL</string>
   <string name="label_useGpsLocation">Aktuelle GPS Position benutzen</string>
+  <string name="label_vessels">Fahrzeuge</string>
   <string name="label_width">Breite</string>
   <string name="label_zoom">Zoom</string>
   <string name="language_de">Deutsch</string>
@@ -97,8 +100,9 @@
   <string name="stderr">Fehlerausgabe</string>
   <string name="stdout">Ausgabe</string>
   <string name="tab_categories">Kategorien</string>
-  <string name="tab_driving_vessels">Fahrende Schiffe</string>
-  <string name="tab_moored_vessels">Ankernde Schiffe</string>
+  <string name="tab_driving_vessels">Fahrend</string>
+  <string name="tab_moored_vessels">Ankernd</string>
+  <string name="tab_safety">Sicherheit</string>
   <string name="tab_search">Suche</string>
   <string name="tab_settings">Einstellungen</string>
   <string name="title_current_location">Aktuelle Position</string>

@@ -52,7 +52,7 @@ import org.jetbrains.compose.resources.stringResource
 
 
 @Composable
-fun SettingsPage(
+fun SettingsTab(
     viewModel: ShipermansFriendViewModel,
     onAction: (ShipermansFriendAction) -> Unit
 ) {

@@ -17,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -39,7 +38,6 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun InfoTab(
     platformType: PlatformType,
-    uriHandler: UriHandler,
 ) {
 
     PlatformVerticalScrollbarBox(

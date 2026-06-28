@@ -74,12 +74,14 @@ sealed interface ShipermansFriendAction {
     //
     // Vessels
     //
+    @Immutable
     data class OnShowRadar(
         val location: Location?,
         val vessels: List<AisDataUi>,
         val selectedVessel: AisDataUi
     ): ShipermansFriendAction
 
+    @Immutable
     class OnShowRadarBack: ShipermansFriendAction
 
     @Immutable
@@ -95,10 +97,12 @@ sealed interface ShipermansFriendAction {
     //
     // Tabs
     //
+    @Immutable
     data class OnTabSelected(
         val index: Int
     ): ShipermansFriendAction
 
+    @Immutable
     data class OnInitializeTabs(
         val tabLabels: List<Pair<String, UiText>>
     ): ShipermansFriendAction
@@ -106,6 +110,11 @@ sealed interface ShipermansFriendAction {
     //
     //
     //
+    @Immutable
+    data class OnRadarRadiusChange(
+        val radius: Double
+    ): ShipermansFriendAction
+
     @Immutable
     data class OnCollapsibleStateChange(
         val id: String,

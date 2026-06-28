@@ -5,6 +5,7 @@ import de.visualdigits.common.domain.model.errorhandling.AppError
 sealed interface DataError: AppError {
 
     enum class Remote: DataError {
+        CONNECTION_ERROR,
         REQUEST_TIMEOUT,
         NO_INTERNET,
         SERVER,

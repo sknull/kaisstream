@@ -2,6 +2,7 @@ package de.visualdigits.shipermansfriend.domain.model.errorhandling
 
 import de.visualdigits.common.domain.model.ui.UiText
 import de.visualdigits.compose.resources.Res
+import de.visualdigits.compose.resources.error_local_connection_error
 import de.visualdigits.compose.resources.error_local_disk_full
 import de.visualdigits.compose.resources.error_local_file_not_found
 import de.visualdigits.compose.resources.error_local_serialization
@@ -21,6 +22,7 @@ fun DataError.toUiText(): UiText {
         DataError.Local.UNKNOWN_FIELD -> Res.string.error_unknown_field
         DataError.Local.UNKNOWN -> Res.string.error_local_unknown
 
+        DataError.Remote.CONNECTION_ERROR -> Res.string.error_local_connection_error
         DataError.Remote.REQUEST_TIMEOUT -> Res.string.error_remote_request_timeout
         DataError.Remote.NO_INTERNET -> Res.string.error_remote_no_internet
         DataError.Remote.SERVER -> Res.string.error_remote_unknown

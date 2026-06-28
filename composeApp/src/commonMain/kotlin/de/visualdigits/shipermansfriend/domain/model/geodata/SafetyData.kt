@@ -1,7 +1,6 @@
 package de.visualdigits.shipermansfriend.domain.model.geodata
 
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
-import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 
 class SafetyData(
@@ -10,7 +9,7 @@ class SafetyData(
     val repeatIndicator :Int,
     val userID :Int,
     val valid :Boolean,
-    val text: String,
+    val text: String? = null,
 ) : AisData(
     messageType,
     "",

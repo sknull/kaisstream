@@ -13,10 +13,9 @@ import kotlin.math.sqrt
 fun Modifier.radarHover(
     location: Location,
     currentRadarRadius: Double,
-    selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
-    activeHoverVesselState: MutableState<AisDataUi?>,
-    setActiveHoverVessel: (AisDataUi?) -> Unit
+    activeHoverVesselState: MutableState<List<AisDataUi>>,
+    setActiveHoverVessel: (List<AisDataUi>) -> Unit
 ): Modifier {
     return pointerInput(vessels, location, currentRadarRadius) {
         // pointerInput lauscht auf Mausbewegungen auf dem Desktop (und Touch auf Mobile)
@@ -33,12 +32,10 @@ fun Modifier.radarHover(
                         val canvasRadius = StrictMath.min(size.width, size.height) / 2.0f
                         val drawCenter = Offset(size.width / 2.0f, size.height / 2.0f)
 
-                        var foundVessel: AisDataUi? = null
-
                         val currentBoundingBox = location.calculateBoundingBox(currentRadarRadius)
-                        vessels
+                        val foundVessels = vessels
                             .filter { vessel -> vessel.location.isInBoundingBox(currentBoundingBox) }
-                            .forEach { vessel ->
+                            .filter { vessel ->
                                 val vesselLoc = vessel.extrapolatedPosition()
                                 val vesselOffset = location.calculateRadarOffset(
                                     other = vesselLoc,
@@ -47,22 +44,22 @@ fun Modifier.radarHover(
                                     center = drawCenter
                                 )
 
-                                val distanceToMouse = sqrt(
-                                    (position.x - vesselOffset.x).pow(2) + (position.y - vesselOffset.y).pow(2)
-                                )
+                                if (vesselOffset != Offset.Unspecified) {
+                                    val distanceToMouse = sqrt(
+                                        (position.x - vesselOffset.x).pow(2) + (position.y - vesselOffset.y).pow(2)
+                                    )
 
-                                if (distanceToMouse <= 15f) {
-                                    foundVessel = vessel
+                                    distanceToMouse <= 15f
+                                } else {
+                                    false
                                 }
                             }
 
-                        if (activeHoverVesselState.value != foundVessel) {
-                            setActiveHoverVessel(foundVessel)
-                        }
+                        setActiveHoverVessel(foundVessels)
                     }
 
                     PointerEventType.Exit, PointerEventType.Release -> {
-                        setActiveHoverVessel(null)
+                        setActiveHoverVessel(listOf())
                     }
                 }
             }

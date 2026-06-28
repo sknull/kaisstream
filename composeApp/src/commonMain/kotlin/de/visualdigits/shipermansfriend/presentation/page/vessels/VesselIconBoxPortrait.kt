@@ -17,14 +17,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.util.copyFactor
 import de.visualdigits.common.presentation.components.Led
 import de.visualdigits.common.presentation.components.modifier.angledInnerShadow
-import de.visualdigits.common.presentation.components.util.conditional
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
@@ -38,11 +36,9 @@ import org.jetbrains.compose.resources.painterResource
 fun VesselIconBoxPortrait(
     iconWidth: Dp,
     data: AisDataUi,
-    cardHeight: Dp,
     location: Location?,
     selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
-    uriHandler: UriHandler,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
     Column(
@@ -87,9 +83,6 @@ fun VesselIconBoxPortrait(
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
             ) {
                 Icon(
-                    modifier = Modifier
-                        .conditional(iconWidth < cardHeight) { width(iconWidth - 10.dp) }
-                        .conditional(iconWidth >= cardHeight) { height(cardHeight - 50.dp) },
                     painter = painterResource(shipType.category.icon),
                     contentDescription = shipType.category.name,
                     tint = LightGray,

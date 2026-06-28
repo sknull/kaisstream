@@ -24,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.visualdigits.common.domain.model.geodata.Location
@@ -51,7 +50,6 @@ fun VesselSearchTab(
     state: ShipermansFriendState,
     screenWidth: Dp,
     screenHeight: Dp,
-    uriHandler: UriHandler,
     platformType: PlatformType,
     location: () -> Location?,
     onAction: (ShipermansFriendAction) -> Unit,
@@ -124,7 +122,6 @@ fun VesselSearchTab(
                     Pair("searchVessel_${vessel.mmsi}", @Composable {
                         key("searchVessel_${vessel.mmsi}") {
                             VesselCard(
-                                uriHandler = uriHandler,
                                 screenWidth = screenWidth,
                                 screenHeight = screenHeight,
                                 location = locationValue,

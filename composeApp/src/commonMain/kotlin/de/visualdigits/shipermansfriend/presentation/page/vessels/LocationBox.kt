@@ -1,22 +1,20 @@
 package de.visualdigits.shipermansfriend.presentation.page.vessels
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,16 +26,20 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import de.visualdigits.common.domain.model.geodata.Location
+import de.visualdigits.common.domain.model.geodata.formatDistance
 import de.visualdigits.common.presentation.components.Led
 import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.compose.resources.Res
+import de.visualdigits.compose.resources.icon_directions_boat_24px
 import de.visualdigits.compose.resources.icon_move_location_24px
 import de.visualdigits.compose.resources.icon_my_location_24px
+import de.visualdigits.compose.resources.icon_radar_24px
 import de.visualdigits.compose.resources.icon_support_24px
 import de.visualdigits.compose.resources.label_minutes
 import de.visualdigits.shipermansfriend.domain.model.geodata.ReceiverState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
+import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import de.visualdigits.shipermansfriend.presentation.util.routePlatformLink
 import org.jetbrains.compose.resources.painterResource
@@ -48,11 +50,10 @@ fun LocationBox(
     locationValue: Location?,
     receiverState: ReceiverState,
     lastLocationUpdate: Long,
+    currentRadarRadius: Double,
+    vesselNumber: Int,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
-    val interactionSourceLocation = remember { MutableInteractionSource() }
-    val isHoveredLocation by interactionSourceLocation.collectIsHoveredAsState()
-
     Box(
         modifier = Modifier
             .dropShadow(
@@ -83,7 +84,7 @@ fun LocationBox(
                 Column(
                     modifier = Modifier
                         .weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
                 ) {
                     Row(
                         modifier = Modifier
@@ -122,19 +123,68 @@ fun LocationBox(
                         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            painter = painterResource(Res.drawable.icon_move_location_24px),
-                            contentDescription = null
-                        )
-
-                        Text(
+                        Row(
                             modifier = Modifier
-                                .weight(1f),
-                            text = "$lastLocationUpdate ${stringResource(Res.string.label_minutes)}",
-                            color = if (isHoveredLocation) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1,
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                                .width(IntrinsicSize.Min),
+                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.icon_move_location_24px),
+                                contentDescription = null,
+                                tint = TextColor
+                            )
+
+                            Text(
+                                modifier = Modifier
+                                    .width(IntrinsicSize.Max),
+                                text = "$lastLocationUpdate ${stringResource(Res.string.label_minutes)}",
+                                maxLines = 1,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .width(IntrinsicSize.Min),
+                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.icon_directions_boat_24px),
+                                contentDescription = null,
+                                tint = TextColor
+                            )
+
+                            Text(
+                                modifier = Modifier
+                                    .width(IntrinsicSize.Max),
+                                text = vesselNumber.toString(),
+                                maxLines = 1,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .width(IntrinsicSize.Min),
+                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.icon_radar_24px),
+                                contentDescription = null,
+                                tint = TextColor
+                            )
+
+                            Text(
+                                modifier = Modifier
+                                    .width(IntrinsicSize.Max),
+                                text = currentRadarRadius.formatDistance(),
+                                maxLines = 1,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
                     }
                 }
 

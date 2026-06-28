@@ -29,8 +29,8 @@ fun RadarBox(
     currentRadarRadius: Double,
     selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
-    activeHoverVesselState: MutableState<AisDataUi?>,
-    setActiveHoverName: (AisDataUi?) -> Unit,
+    activeHoverVesselState: MutableState<List<AisDataUi>>,
+    setActiveHoverName: (List<AisDataUi>) -> Unit,
     imageHeading: ImageBitmap,
     colorBackground: Color,
     colorGrid: Color,
@@ -60,7 +60,6 @@ fun RadarBox(
             .radarHover(
                 location = location,
                 currentRadarRadius = currentRadarRadius,
-                selectedVessel = selectedVessel,
                 vessels = vessels,
                 activeHoverVesselState = activeHoverVesselState,
                 setActiveHoverVessel = setActiveHoverName,

@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,7 +21,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
-import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -33,7 +33,6 @@ import de.visualdigits.shipermansfriend.presentation.style.gap
 
 @Composable
 fun VesselCard(
-    uriHandler: UriHandler,
     screenWidth: Dp,
     screenHeight: Dp,
     location: Location?,
@@ -57,12 +56,13 @@ fun VesselCard(
             screenWidth - iconWidth - MaterialTheme.shapes.gap
         }
     }
-    val cardHeight = if (isLandscape) 200.dp else 350.dp
+//    val cardHeight = if (isLandscape) 210.dp else 360.dp
+    val cardHeight = Dp.Unspecified
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(cardHeight)
+            .height(IntrinsicSize.Min)
             .conditional(!simple) {
                 dropShadow(
                     shape = RoundedCornerShape(8.dp),
@@ -135,11 +135,9 @@ fun VesselCard(
                     VesselIconBoxPortrait(
                         iconWidth = iconWidth,
                         data = selectedVessel,
-                        cardHeight = cardHeight,
                         location = location,
                         selectedVessel = selectedVessel,
                         vessels = vessels,
-                        uriHandler = uriHandler,
                         onAction = onAction
                     )
                 }

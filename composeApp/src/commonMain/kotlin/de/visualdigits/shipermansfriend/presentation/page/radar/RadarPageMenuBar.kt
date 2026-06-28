@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import de.visualdigits.common.domain.model.geodata.formatDistance
 import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.icon_arrow_back_24px
@@ -23,7 +24,6 @@ import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import kotlin.math.roundToInt
 
 @Composable
 fun RadarPageMenuBar(
@@ -59,7 +59,7 @@ fun RadarPageMenuBar(
             )
 
             Text(
-                text = "${stringResource(Res.string.label_zoom)} ${currentRadarRadius.roundToInt()} m",
+                text = "${stringResource(Res.string.label_zoom)} ${currentRadarRadius.formatDistance()}",
                 style = MaterialTheme.typography.bodySmall,
             )
         }

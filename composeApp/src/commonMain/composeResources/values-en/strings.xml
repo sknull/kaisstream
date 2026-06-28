@@ -12,6 +12,7 @@
   <string name="dialog_title_import_settings">Choose Settings File</string>
   <string name="edit">Edit</string>
   <string name="edit_hint">Edit...</string>
+  <string name="error_local_connection_error">Connection Error.</string>
   <string name="error_local_disk_full">The hard drive is full.</string>
   <string name="error_local_file_not_found">File not found.</string>
   <string name="error_local_serialization">Result could not be analyzed.</string>
@@ -27,6 +28,7 @@
   <string name="group_aisstream">AIS Stream</string>
   <string name="group_display_theme">Display Theme</string>
   <string name="group_settings">Settings</string>
+  <string name="hint_safety_messages">Safety messages do not have coordinates. Due to that they were sent within the outer bounding box and do not necessarily refer to the inner bounding box.</string>
   <string name="label_Cargo">Cargo</string>
   <string name="label_Fishing">Fishing</string>
   <string name="label_HSC">High Speed Craft</string>
@@ -73,7 +75,7 @@
   <string name="label_radiusOuter">Outer Radius</string>
   <string name="label_refresh_interval">Refresh Interval</string>
   <string name="label_refresh_wifi_only">Refresh Wifi Only.</string>
-  <string name="label_search_placeholder">Search by name, MMSI, IMO or callsign...</string>
+  <string name="label_search_placeholder">Name, MMSI, IMO, Callsign</string>
   <string name="label_service_down">Aisstream is offline</string>
   <string name="label_service_unknown">No information available</string>
   <string name="label_service_up">Aisstream is online</string>
@@ -83,6 +85,7 @@
   <string name="label_textColor">Text Color</string>
   <string name="label_url">Feed URL</string>
   <string name="label_useGpsLocation">Use GPS location instead of fix location</string>
+  <string name="label_vessels">Vessels</string>
   <string name="label_width">Width</string>
   <string name="label_zoom">Zoom</string>
   <string name="language_de">German</string>
@@ -97,8 +100,9 @@
   <string name="stderr">Error Output</string>
   <string name="stdout">Output</string>
   <string name="tab_categories">Categories</string>
-  <string name="tab_driving_vessels">Driving Vessels</string>
-  <string name="tab_moored_vessels">Moored Vessels</string>
+  <string name="tab_driving_vessels">Driving</string>
+  <string name="tab_moored_vessels">Moored</string>
+  <string name="tab_safety">Safety</string>
   <string name="tab_search">Search</string>
   <string name="tab_settings">Settings</string>
   <string name="title_current_location">Current Location</string>

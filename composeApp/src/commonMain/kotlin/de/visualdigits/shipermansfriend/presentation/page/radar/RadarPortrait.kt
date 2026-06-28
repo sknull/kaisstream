@@ -21,7 +21,7 @@ fun RadarPortrait(
     currentRadarRadius: Double,
     selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
-    activeHoverVesselState: MutableState<AisDataUi?>,
+    activeHoverVesselState: MutableState<List<AisDataUi>>,
     imageHeading: ImageBitmap,
     colorBackground: Color,
     colorGrid: Color
@@ -48,14 +48,7 @@ fun RadarPortrait(
                 colorBackground = colorBackground,
                 colorGrid = colorGrid
             )
-        }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            contentAlignment = Alignment.Center
-        ) {
             HoveredVesselBox(
                 activeHoverVesselState = activeHoverVesselState
             )

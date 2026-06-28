@@ -1,7 +1,6 @@
 package de.visualdigits.shipermansfriend.domain.model.serializer
 
 import de.visualdigits.shipermansfriend.domain.model.geodata.FixType
-import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor

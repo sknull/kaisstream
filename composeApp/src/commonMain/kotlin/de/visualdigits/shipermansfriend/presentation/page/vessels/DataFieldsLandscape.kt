@@ -68,7 +68,7 @@ fun DataFieldsLandscape(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(cellHeight),
+                .height(cellHeight + 10.dp),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -77,7 +77,7 @@ fun DataFieldsLandscape(
                     .clip(MaterialTheme.shapes.extraSmall)
                     .background(MarineBlueLighter)
                     .width(cellWidth - MaterialTheme.shapes.gap * 2)
-                    .height(cellHeight)
+                    .height(cellHeight + 10.dp)
                     .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
                 verticalAlignment = Alignment.CenterVertically
@@ -94,10 +94,17 @@ fun DataFieldsLandscape(
                     contentDescription = null,
                     tint = TextColor
                 )
-                Text(
-                    text = if (!data.isMoored) "${data.sog} ${stringResource(Res.string.label_knots)}" else stringResource(Res.string.label_moored),
-                    style = MaterialTheme.typography.labelLarge
-                )
+                Column(
+                ) {
+                    Text(
+                        text = if (!data.isMoored) "${data.sog} ${stringResource(Res.string.label_knots)}" else stringResource(Res.string.label_moored),
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                    Text(
+                        text = if (!data.isMoored) data.speedKmh else "",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
 
             Row(
@@ -105,7 +112,7 @@ fun DataFieldsLandscape(
                     .clip(MaterialTheme.shapes.extraSmall)
                     .background(MarineBlueLighter)
                     .width(cellWidth - MaterialTheme.shapes.gap * 2)
-                    .height(cellHeight)
+                    .height(cellHeight + 10.dp)
                     .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
                 verticalAlignment = Alignment.CenterVertically
@@ -130,7 +137,7 @@ fun DataFieldsLandscape(
                     .clip(MaterialTheme.shapes.extraSmall)
                     .background(MarineBlueLighter)
                     .width(cellWidth - MaterialTheme.shapes.gap * 2)
-                    .height(cellHeight)
+                    .height(cellHeight + 10.dp)
                     .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
                 verticalAlignment = Alignment.CenterVertically
