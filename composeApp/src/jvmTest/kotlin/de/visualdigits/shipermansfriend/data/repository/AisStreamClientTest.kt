@@ -1,14 +1,15 @@
 package de.visualdigits.shipermansfriend.data.repository
 
 import de.visualdigits.common.domain.model.geodata.Location
-import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import de.visualdigits.shipermansfriend.di.platformModule
 import de.visualdigits.shipermansfriend.di.sharedModule
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.ApiKey
 import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
 import de.visualdigits.shipermansfriend.domain.model.geodata.PositionData
 import de.visualdigits.shipermansfriend.domain.repository.LocationProvider
+import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
@@ -30,7 +31,6 @@ class AisStreamClientTest : KoinTest {
 
     private val vesselDataRepository: VesselDataRepository by inject()
     private val aisStreamClient: AisStreamClient by inject()
-    private val locationProvider: LocationProvider by inject()
 
     @JvmField
     @RegisterExtension
@@ -59,6 +59,7 @@ class AisStreamClientTest : KoinTest {
     private val positionData = MutableStateFlow<Map<Long, PositionData>>(emptyMap())
     private val location = MutableStateFlow<Location?>(null)
 
+    @OptIn(FlowPreview::class)
     @Test
     fun testClient() {
         val apiKey = File("E:\\restoreworkstation\\_Serial\\aisstream_apikey.txt").readText().trim()
