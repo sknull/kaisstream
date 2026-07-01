@@ -6,7 +6,10 @@ Verzeichnis auswählen
 Datei auswählen
 Schließen
 Löschen
+Schiffsdaten exportieren
+Fotoprotokoll exportieren
 Einstellungen exportieren
+Schiffsdaten wählen
 Einstellungen wählen
 Bearbeiten
 Bearbeiten...
@@ -78,6 +81,7 @@ Max. Tiefgang
 Minuten
 Ankernd
 OPML
+Fotoprotokoll
 Bilder laden
 Innerer Radius
 Äußerer Radius

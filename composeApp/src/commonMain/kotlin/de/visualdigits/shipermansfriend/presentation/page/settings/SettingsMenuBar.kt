@@ -12,11 +12,15 @@ import de.visualdigits.common.domain.model.ui.FileMode
 import de.visualdigits.common.presentation.components.PlatformFileChooser
 import de.visualdigits.common.presentation.components.PlatformFileSaver
 import de.visualdigits.compose.resources.Res
+import de.visualdigits.compose.resources.dialog_title_export_master_data
+import de.visualdigits.compose.resources.dialog_title_export_photo_protocol
 import de.visualdigits.compose.resources.dialog_title_export_settings
+import de.visualdigits.compose.resources.dialog_title_import_master_data
 import de.visualdigits.compose.resources.dialog_title_import_settings
 import de.visualdigits.compose.resources.icon_download_24px
 import de.visualdigits.compose.resources.icon_upload_24px
 import de.visualdigits.compose.resources.label_masterdata
+import de.visualdigits.compose.resources.label_photo_protocol
 import de.visualdigits.compose.resources.label_settings
 import de.visualdigits.compose.resources.save
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
@@ -72,7 +76,7 @@ fun SettingsMenuBar(
             label = stringResource(Res.string.label_masterdata),
             buttonTextStyle = MaterialTheme.typography.bodySmall,
             buttonTextAlign = TextAlign.Start,
-            title = stringResource(Res.string.dialog_title_import_settings),
+            title = stringResource(Res.string.dialog_title_import_master_data),
             fileMode = FileMode.FILES_ONLY,
             buttonColor = MaterialTheme.colorScheme.surface,
             leadingIcon = painterResource(Res.drawable.icon_download_24px),
@@ -87,7 +91,7 @@ fun SettingsMenuBar(
             labelSaveButton = stringResource(Res.string.save),
             buttonTextStyle = MaterialTheme.typography.bodySmall,
             buttonTextAlign = TextAlign.Start,
-            title = stringResource(Res.string.dialog_title_export_settings),
+            title = stringResource(Res.string.dialog_title_export_master_data),
             fileMode = FileMode.FILES_ONLY,
             suggestedFileName = "ShipermansFriend-masterdata_${KmpOffsetDateTime.now().format("yyyy-MM-dd_HH-mm-ss")}.json",
             buttonColor = MaterialTheme.colorScheme.surface,
@@ -95,6 +99,21 @@ fun SettingsMenuBar(
             startDirectory = Path(homeDirectoryPath, "backup"),
         ) { fileName, outs ->
             onAction(ShipermansFriendAction.OnMasterDataExport(fileName, outs))
+        }
+
+        PlatformFileSaver(
+            label = stringResource(Res.string.label_photo_protocol),
+            labelSaveButton = stringResource(Res.string.save),
+            buttonTextStyle = MaterialTheme.typography.bodySmall,
+            buttonTextAlign = TextAlign.Start,
+            title = stringResource(Res.string.dialog_title_export_photo_protocol),
+            fileMode = FileMode.FILES_ONLY,
+            suggestedFileName = "ShipermansFriend-photoprotocol_${KmpOffsetDateTime.now().format("yyyy-MM-dd_HH-mm-ss")}.csv",
+            buttonColor = MaterialTheme.colorScheme.surface,
+            leadingIcon = painterResource(Res.drawable.icon_upload_24px),
+            startDirectory = Path(homeDirectoryPath, "backup"),
+        ) { fileName, outs ->
+            onAction(ShipermansFriendAction.OnPhotoProtocolExport(fileName, outs))
         }
     }
 }

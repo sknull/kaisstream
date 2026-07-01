@@ -15,13 +15,13 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.components.PlatformVerticalScrollbarBox
 import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
+import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.style.gap
 
@@ -29,9 +29,8 @@ import de.visualdigits.shipermansfriend.presentation.style.gap
 @Composable
 fun VesselsTab(
     viewModel: ShipermansFriendViewModel,
+    state: ShipermansFriendState,
     platformType: PlatformType,
-    screenWidth: Dp,
-    screenHeight: Dp,
     sizeFactor: Float,
     isMoored: Boolean,
     onAction: (ShipermansFriendAction) -> Unit
@@ -83,9 +82,8 @@ fun VesselsTab(
                     Pair("entry_${vessel.mmsi}", @Composable {
                         key("entry_${vessel.mmsi}") {
                             VesselCard(
+                                state = state,
                                 viewModel = viewModel,
-                                screenWidth = screenWidth,
-                                screenHeight = screenHeight,
                                 sizeFactor = sizeFactor,
                                 vessels = vessels,
                                 selectedVessel = vessel,

@@ -2,6 +2,7 @@ package de.visualdigits.shipermansfriend.presentation.page.radar
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -34,7 +35,7 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.presentation.style.ButtonsDark
 import de.visualdigits.shipermansfriend.presentation.style.ButtonsDarker
-import de.visualdigits.shipermansfriend.presentation.style.DarkRed
+import de.visualdigits.shipermansfriend.presentation.style.RedDark
 import de.visualdigits.shipermansfriend.presentation.style.LightGray
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
@@ -51,7 +52,8 @@ fun HoveredVesselBox(
     if (vessels.isNotEmpty()) {
         BoxWithConstraints(
             modifier = modifier
-                .fillMaxHeight()
+                .fillMaxHeight(),
+            contentAlignment = Alignment.Center
         ) {
             val maxEntries = (maxHeight / (31.dp)).toInt() - 1
             Box(
@@ -150,7 +152,7 @@ fun HoveredVesselBox(
                                 modifier = Modifier
                                     .width(40.dp)
                                     .fillMaxHeight()
-                                    .conditional(isCriticalMessage) { background(DarkRed) }
+                                    .conditional(isCriticalMessage) { background(RedDark) }
                                     .conditional(!isCriticalMessage) { background(MarineBlue) },
                                 contentAlignment = Alignment.Center
                             ) {

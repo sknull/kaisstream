@@ -119,7 +119,7 @@ private fun ContentDrawScope.drawVessel(
         } else if (isSelected) {
             // pulsing circle
             drawCircle(
-                color = Color.White.copy(alpha = 1f - fraction),
+                color = Color.White.copy(alpha = 1f - fraction * 0.5f),
                 style = Fill,
                 radius = currentPulseRadius,
                 center = offset
@@ -151,7 +151,7 @@ private fun ContentDrawScope.drawVessel(
         } else {
             if (size == Size.Unspecified) {
                 drawCircle(
-                    color = if (isSelected) color else color.copy(alpha = 0.5f),
+                    color = color,
                     style = Fill,
                     radius = 5.0f,
                     center = offset

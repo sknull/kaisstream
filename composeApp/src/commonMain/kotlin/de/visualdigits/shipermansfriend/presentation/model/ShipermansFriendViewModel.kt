@@ -3,6 +3,7 @@ package de.visualdigits.shipermansfriend.presentation.model
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Severity
+import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
 import de.visualdigits.common.domain.model.errorhandling.Result
 import de.visualdigits.common.domain.model.errorhandling.onError
@@ -56,8 +57,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.io.Sink
 import kotlinx.io.Source
+import kotlinx.io.writeString
 import kotlin.math.max
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -77,7 +80,6 @@ class ShipermansFriendViewModel(
 
     private val _editedSettings = MutableStateFlow<Settings?>(null)
     val editedSettings = _editedSettings.asStateFlow()
-
 
     private val _positionData = MutableStateFlow<Map<Long, PositionData>>(emptyMap())
     private val _masterData = MutableStateFlow<Map<Long, MasterData>>(emptyMap())
@@ -204,6 +206,7 @@ class ShipermansFriendViewModel(
             location
         ) { positionDataMap, masterDataMap, safetyDataMap, location ->
             safetyDataMap.mapNotNull { (mmsi, safetyData) ->
+                val md = masterDataMap[mmsi]
                 val pd = positionDataMap[mmsi]
                 if (pd == null) { // only process safety messages without existing position data - those are processed in the other loop
                     val distance = location?.distanceTo(safetyData.location) ?: 0.0
@@ -216,7 +219,13 @@ class ShipermansFriendViewModel(
                         timeUtc = safetyData.timeUtc,
                         location = safetyData.location,
                         isMoored = false,
+                        imoNumber = if (isValidImo(md?.imoNumber)) md?.imoNumber else 0,
+                        callSign = md?.callSign,
+                        destination = md?.destination,
+                        totalLength = md?.totalLength,
+                        totalWidth = md?.totalWidth,
                         shipType = ShipType.SAFETY_DEVICE,
+                        maximumStaticDraught = md?.maximumStaticDraught,
                         distance = distance,
                         distanceString = distance.formatDistance(),
                         hasSafetyMessage = true,
@@ -460,7 +469,6 @@ class ShipermansFriendViewModel(
                     )
                 }
             }
-
             is ShipermansFriendAction.OnVesselSearchExpandStateChanged -> {
                 _state.update {
                     it.copy(
@@ -468,10 +476,35 @@ class ShipermansFriendViewModel(
                     )
                 }
             }
+            is ShipermansFriendAction.OnAddVesselToPhotoProtocol -> {
+                _state.update { state ->
+                    val mutableCopy = state.photoProtocol.toMutableMap()
+                    val mmsi = action.vessel.mmsi
+                    if (mutableCopy.containsKey(mmsi)) {
+                        mutableCopy.remove(mmsi)
+                    } else {
+                        mutableCopy[mmsi] = action.vessel.copy(timeUtc = KmpOffsetDateTime.now())
+                    }
+                    state.copy(
+                        photoProtocol = mutableCopy
+                    )
+                }
+            }
+            is ShipermansFriendAction.OnPhotoProtocolExport -> {
+                exportPhotoProtocol(action.fileName, action.sink)
+            }
 
             //
             //
             //
+            is ShipermansFriendAction.OnRReportScreenSize -> {
+                _state.update { state ->
+                    state.copy(
+                        screenWidth = action.screenWidth,
+                        screenHeight = action.screenHeight
+                    )
+                }
+            }
             is ShipermansFriendAction.OnRadarRadiusChange -> {
                 if (action.radius < _state.value.currentRadarRadius) {
                     updateRadarRadius(action.radius)
@@ -566,6 +599,8 @@ class ShipermansFriendViewModel(
             _state.update {
                 it.copy(
                     currentProgress = 0.0f,
+                    isEditingSettings = false,
+                    selectedTabIndex = 0,
                     progressStage = ProgressStage.NONE,
                     uiMessage = UiText.StringResourceId(Res.string.error_local_wrong_filetype),
                     uiMessageSeverity = Severity.Error
@@ -584,6 +619,8 @@ class ShipermansFriendViewModel(
                         _state.update {
                             it.copy(
                                 uiMessage = null,
+                                isEditingSettings = false,
+                                selectedTabIndex = 0,
                             )
                         }
                     }
@@ -592,7 +629,9 @@ class ShipermansFriendViewModel(
                         _state.update {
                             it.copy(
                                 uiMessage = error.toUiText(),
-                                uiMessageSeverity = Severity.Error
+                                uiMessageSeverity = Severity.Error,
+                                isEditingSettings = false,
+                                selectedTabIndex = 0,
                             )
                         }
                     }
@@ -601,6 +640,8 @@ class ShipermansFriendViewModel(
             _state.update {
                 it.copy(
                     currentProgress = 0.0f,
+                    isEditingSettings = false,
+                    selectedTabIndex = 0,
                     progressStage = ProgressStage.NONE,
                     uiMessage = UiText.StringResourceId(Res.string.error_local_wrong_filetype),
                     uiMessageSeverity = Severity.Error
@@ -616,6 +657,8 @@ class ShipermansFriendViewModel(
                     _state.update {
                         it.copy(
                             uiMessage = null,
+                            isEditingSettings = false,
+                            selectedTabIndex = 0,
                         )
                     }
                 }
@@ -624,7 +667,9 @@ class ShipermansFriendViewModel(
                     _state.update {
                         it.copy(
                             uiMessage = error.toUiText(),
-                            uiMessageSeverity = Severity.Error
+                            uiMessageSeverity = Severity.Error,
+                            isEditingSettings = false,
+                            selectedTabIndex = 0,
                         )
                     }
                 }
@@ -632,6 +677,8 @@ class ShipermansFriendViewModel(
             _state.update {
                 it.copy(
                     currentProgress = 0.0f,
+                    isEditingSettings = false,
+                    selectedTabIndex = 0,
                     progressStage = ProgressStage.NONE,
                     uiMessage = UiText.StringResourceId(Res.string.error_local_wrong_filetype),
                     uiMessageSeverity = Severity.Error
@@ -648,6 +695,8 @@ class ShipermansFriendViewModel(
                     _state.update {
                         it.copy(
                             uiMessage = null,
+                            isEditingSettings = false,
+                            selectedTabIndex = 0,
                         )
                     }
                 }
@@ -656,7 +705,9 @@ class ShipermansFriendViewModel(
                     _state.update {
                         it.copy(
                             uiMessage = error.toUiText(),
-                            uiMessageSeverity = Severity.Error
+                            uiMessageSeverity = Severity.Error,
+                            isEditingSettings = false,
+                            selectedTabIndex = 0,
                         )
                     }
                 }
@@ -664,10 +715,44 @@ class ShipermansFriendViewModel(
             _state.update {
                 it.copy(
                     currentProgress = 0.0f,
+                    isEditingSettings = false,
+                    selectedTabIndex = 0,
                     progressStage = ProgressStage.NONE,
                     uiMessage = UiText.StringResourceId(Res.string.error_local_wrong_filetype),
                     uiMessageSeverity = Severity.Error
                 )
+            }
+        }
+    }
+
+    private fun exportPhotoProtocol(fileName: String, sink: Sink) = viewModelScope.launch {
+        log(Severity.Info, "Exporting photo protocol", withTag = "AIS")
+        val rows = state.value.photoProtocol.values
+            .sortedBy { v -> v.timeUtc }
+            .joinToString("\n") { v -> v.toCsvRow() }
+        val csv = "${AisDataUi.csvTitleRow()}\n$rows"
+        withContext(Dispatchers.IO) {
+            if (fileName.endsWith(".csv", ignoreCase = true)) {
+                _state.update { state ->
+                    sink.use { writer ->
+                        writer.writeString(csv)
+                    }
+                    state.copy(
+                        currentProgress = 0.0f,
+                        progressStage = ProgressStage.NONE,
+                        uiMessage = null,
+                        uiMessageSeverity = null
+                    )
+                }
+            } else {
+                _state.update {
+                    it.copy(
+                        currentProgress = 0.0f,
+                        progressStage = ProgressStage.NONE,
+                        uiMessage = UiText.StringResourceId(Res.string.error_local_wrong_filetype),
+                        uiMessageSeverity = Severity.Error
+                    )
+                }
             }
         }
     }
@@ -706,8 +791,7 @@ class ShipermansFriendViewModel(
                     currentProgress = 0.0f,
                     progressStage = ProgressStage.NONE,
                     uiMessage = null,
-                    uiMessageSeverity = null,
-                    collapsibleState = mapOf("group_newsfeeds_navigation" to true)
+                    uiMessageSeverity = null
                 )
             }
         } else if (result is Result.Error) {

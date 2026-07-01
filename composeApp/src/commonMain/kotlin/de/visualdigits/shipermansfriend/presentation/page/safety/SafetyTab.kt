@@ -13,23 +13,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.components.PlatformVerticalScrollbarBox
 import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
+import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselCard
 import de.visualdigits.shipermansfriend.presentation.style.gap
 
 @Composable
 fun SafetyTab(
+    state: ShipermansFriendState,
     viewModel: ShipermansFriendViewModel,
     platformType: PlatformType,
-    screenWidth: Dp,
-    screenHeight: Dp,
     sizeFactor: Float,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
@@ -64,9 +63,8 @@ fun SafetyTab(
                     Pair("safetyMessage_${vessel.timeUtc}", @Composable {
                         key("safetyMessage_${vessel.timeUtc}") {
                             VesselCard(
+                                state = state,
                                 viewModel = viewModel,
-                                screenWidth = screenWidth,
-                                screenHeight = screenHeight,
                                 sizeFactor = sizeFactor,
                                 vessels = safetyDevices,
                                 selectedVessel = vessel,

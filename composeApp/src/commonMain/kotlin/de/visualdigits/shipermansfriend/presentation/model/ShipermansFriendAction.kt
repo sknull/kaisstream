@@ -1,6 +1,7 @@
 package de.visualdigits.shipermansfriend.presentation.model
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.unit.Dp
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.ui.KeyValue
 import de.visualdigits.common.domain.model.ui.UiText
@@ -94,6 +95,17 @@ sealed interface ShipermansFriendAction {
         val text: String
     ): ShipermansFriendAction
 
+    @Immutable
+    data class OnAddVesselToPhotoProtocol(
+        val vessel: AisDataUi
+    ): ShipermansFriendAction
+
+    @Immutable
+    data class OnPhotoProtocolExport(
+        val fileName: String,
+        val sink: Sink
+    ): ShipermansFriendAction
+
     //
     // Tabs
     //
@@ -110,6 +122,12 @@ sealed interface ShipermansFriendAction {
     //
     //
     //
+    @Immutable
+    data class OnRReportScreenSize(
+        val screenWidth: Dp,
+        val screenHeight: Dp,
+    ): ShipermansFriendAction
+
     @Immutable
     data class OnRadarRadiusChange(
         val radius: Double

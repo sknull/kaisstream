@@ -61,6 +61,10 @@ data class AisDataUi(
             "RESCUE ALERT"
         )
 
+        fun csvTitleRow(): String {
+            return "timeUtc;shipType;name;mmsi;deviceType;country;callSign;imoNumber;messageType;speedOverGround;speedKmh;heading;destination;totalLength;totalWidth;maximumStaticDraught;location;distance"
+        }
+
         fun isValidImo(imo: Long?): Boolean {
             val imoStr = imo?.toString()
             if (imoStr?.length != 7) return false
@@ -81,7 +85,11 @@ data class AisDataUi(
         get() = CRITICAL_SAFETY_MESSAGES.contains(text?.uppercase())
 
     override fun toString(): String {
-        return "$name safetyNote=${safetyNote} mmsi=${mmsi} timeUtc=${timeUtc}, imo=${imoNumber}, type=${shipType?.category?.name}, dest=${destination}, maxDraught=${maximumStaticDraught}"
+        return "AisDataUi(messageType=${messageType.name}, name='$name', safetyNote=$safetyNote, mmsi=$mmsi, mmsiCountryPrefix=$mmsiCountryPrefix, timeUtc=$timeUtc, location=$location, isMoored=$isMoored, sog=$sog, speedKmh='$speedKmh', heading=$heading, imoNumber=$imoNumber, callSign=$callSign, destination=$destination, totalLength=$totalLength, totalWidth=$totalWidth, shipType=${shipType?.category?.name}, maximumStaticDraught=$maximumStaticDraught, distance=$distance, distanceString='$distanceString', hasSafetyMessage=$hasSafetyMessage, messageId=$messageId, repeatIndicator=$repeatIndicator, valid=$valid, text=$text, hasCriticalSafetyMessage=$hasCriticalSafetyMessage)"
+    }
+
+    fun toCsvRow(): String {
+        return "${timeUtc.format("dd.MM.yyyy HH:mm:ss")};${shipType?.category?.name};$name;$mmsi;${mmsiCountryPrefix.deviceType.name};${mmsiCountryPrefix.country.countryName};$callSign;$imoNumber;${messageType.name};$sog;$speedKmh;$heading;$destination;$totalLength;$totalWidth;$maximumStaticDraught;${location.toDmsString()};$distanceString"
     }
 
     fun extrapolatedPosition(): Location {

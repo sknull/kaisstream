@@ -75,7 +75,7 @@ fun DataFieldsPortrait(
                 .clip(MaterialTheme.shapes.extraSmall)
                 .background(MarineBlueEvenLighter)
                 .fillMaxWidth()
-                .height(cellHeight + 10.dp)
+                .height(cellHeight + 20.dp)
                 .padding(MaterialTheme.shapes.gap),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
         ) {

@@ -45,7 +45,7 @@ fun RadarLandscape(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
             ) {
                 RadarBox(
                     location = location,

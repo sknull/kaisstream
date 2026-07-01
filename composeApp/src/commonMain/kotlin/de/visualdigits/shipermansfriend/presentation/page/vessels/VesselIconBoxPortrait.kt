@@ -2,7 +2,6 @@ package de.visualdigits.shipermansfriend.presentation.page.vessels
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,23 +29,23 @@ import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.common.presentation.components.modifier.angledInnerShadow
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.icon_radar_24px
-import de.visualdigits.compose.resources.icon_read_more_24px
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
+import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.style.LightGray
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlueDark
 import de.visualdigits.shipermansfriend.presentation.style.gap
-import de.visualdigits.shipermansfriend.presentation.util.routePlatformLink
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun VesselIconBoxPortrait(
     modifier: Modifier = Modifier,
     viewModel: ShipermansFriendViewModel,
+    state: ShipermansFriendState,
     data: AisDataUi,
     selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
@@ -70,32 +69,13 @@ fun VesselIconBoxPortrait(
         ) {
             Spacer(Modifier.weight(1f))
 
-            IndicatorButton(
-                buttonColor = MarineBlue,
-                width = 30.dp,
-                height = 30.dp,
-                leadingIcon = painterResource(Res.drawable.icon_read_more_24px),
-                leadingIconTint = Color.White,
-                onClick = {
-                    routePlatformLink("https://www.myshiptracking.com/vessels/${selectedVessel.mmsi}-mmsi-${selectedVessel.mmsi}-imo-")
-                }
-            )
-
-            IndicatorButton(
-                buttonColor = MarineBlue,
-                width = 30.dp,
-                height = 30.dp,
-                leadingIcon = painterResource(Res.drawable.icon_radar_24px),
-                leadingIconTint = Color.White,
-                onClick = {
-                    onAction(
-                        ShipermansFriendAction.OnShowRadar(
-                            location = locationValue,
-                            vessels = vessels,
-                            selectedVessel = selectedVessel
-                        )
-                    )
-                }
+            VesselButtons(
+                state = state,
+                location = locationValue,
+                selectedVessel = selectedVessel,
+                vessels = vessels,
+                buttonSize = 30.dp,
+                onAction = onAction
             )
         }
 

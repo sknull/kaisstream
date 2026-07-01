@@ -19,13 +19,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
@@ -57,7 +58,6 @@ import de.visualdigits.shipermansfriend.presentation.style.colorScheme
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import de.visualdigits.shipermansfriend.presentation.style.typography
 import org.jetbrains.compose.resources.painterResource
-import kotlin.math.max
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,12 +72,14 @@ fun MainPage(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        val density = LocalDensity.current
-        val screenWidth = maxWidth
-        val screenHeight = maxHeight
+        var screenWidth by remember { mutableStateOf(maxWidth) }
+        LaunchedEffect(maxWidth, maxHeight) {
+            viewModel.onAction(ShipermansFriendAction.OnRReportScreenSize(maxWidth, maxHeight))
+            screenWidth = maxWidth
+        }
 
         val sizeFactor = when {
-            screenWidth < 500.dp -> 0.7f
+            maxWidth < 500.dp -> 0.7f
 //            screenWidth > 1500.dp -> 1.5f
             else -> 1.0f
         }
@@ -104,9 +106,8 @@ fun MainPage(
                 ) to {
                     VesselsTab(
                         viewModel = viewModel,
+                        state = state,
                         platformType = platformType,
-                        screenWidth = screenWidth,
-                        screenHeight = screenHeight,
                         sizeFactor = sizeFactor,
                         isMoored = false,
                         onAction = viewModel::onAction
@@ -132,9 +133,8 @@ fun MainPage(
                 ) to {
                     VesselsTab(
                         viewModel = viewModel,
+                        state = state,
                         platformType = platformType,
-                        screenWidth = screenWidth,
-                        screenHeight = screenHeight,
                         sizeFactor = sizeFactor,
                         isMoored = true,
                         onAction = viewModel::onAction
@@ -156,10 +156,9 @@ fun MainPage(
                     UiText.DynamicString("")
                 ) to {
                     SafetyTab(
+                        state = state,
                         viewModel = viewModel,
                         platformType = platformType,
-                        screenWidth = screenWidth,
-                        screenHeight = screenHeight,
                         sizeFactor = sizeFactor,
                         onAction = viewModel::onAction,
                     )
@@ -182,8 +181,6 @@ fun MainPage(
                     VesselSearchTab(
                         viewModel = viewModel,
                         state = state,
-                        screenWidth = screenWidth,
-                        screenHeight = screenHeight,
                         sizeFactor = sizeFactor,
                         platformType = platformType,
                         onAction = viewModel::onAction,
@@ -236,13 +233,6 @@ fun MainPage(
             ),
             shapes = MyShapes
         ) {
-            LaunchedEffect(Unit) {
-                // Umrechnung von Dp in Pixel für Coil
-                val wPx = with(density) { screenWidth.roundToPx() }
-                val hPx = with(density) { screenHeight.roundToPx() }
-                viewModel.onAction(ShipermansFriendAction.UpdateMaxImageSize(state.settings, max(wPx, hPx)))
-            }
-
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -266,7 +256,6 @@ fun MainPage(
                                 viewModel = viewModel,
                                 state = state,
                                 location = loc,
-                                isLandscape = screenWidth > screenHeight,
                                 onAction = viewModel::onAction
                             )
                         }

@@ -6,7 +6,10 @@ Select directory
 Select file
 Close
 Delete
+Export Masterdata File
+Export Photo Protocol File
 Export Settings File
+Choose Masterdata File
 Choose Settings File
 Edit
 Edit...
@@ -78,6 +81,7 @@ Max. Draught
 Minutes
 Moored
 OPML
+Photo Protocol
 Prefetch Images
 Inner Radius
 Outer Radius

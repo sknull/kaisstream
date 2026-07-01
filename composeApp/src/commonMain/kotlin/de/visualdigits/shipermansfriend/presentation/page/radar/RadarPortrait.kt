@@ -31,7 +31,7 @@ fun RadarPortrait(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
+                .weight(1f)
         ) {
             RadarBox(
                 location = location,

@@ -24,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.visualdigits.common.domain.model.platform.PlatformType
@@ -49,8 +48,6 @@ import org.jetbrains.compose.resources.stringResource
 fun VesselSearchTab(
     viewModel: ShipermansFriendViewModel,
     state: ShipermansFriendState,
-    screenWidth: Dp,
-    screenHeight: Dp,
     sizeFactor: Float,
     platformType: PlatformType,
     onAction: (ShipermansFriendAction) -> Unit,
@@ -136,9 +133,8 @@ fun VesselSearchTab(
                     Pair("searchVessel_${vessel.mmsi}", @Composable {
                         key("searchVessel_${vessel.mmsi}") {
                             VesselCard(
+                                state = state,
                                 viewModel = viewModel,
-                                screenWidth = screenWidth,
-                                screenHeight = screenHeight,
                                 sizeFactor = sizeFactor,
                                 vessels = vessels,
                                 selectedVessel = vessel,

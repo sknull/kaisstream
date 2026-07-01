@@ -20,21 +20,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
+import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.style.gap
 
 
 @Composable
 fun VesselCard(
+    state: ShipermansFriendState,
     viewModel: ShipermansFriendViewModel,
-    screenWidth: Dp,
-    screenHeight: Dp,
     sizeFactor: Float,
     vessels: List<AisDataUi>,
     selectedVessel: AisDataUi,
@@ -42,8 +41,8 @@ fun VesselCard(
 ) {
     val locationValue by viewModel.location.collectAsStateWithLifecycle()
 
-    val isLandscape = screenWidth > screenHeight
-    val iconWidth = if(isLandscape) screenWidth / 5 else screenWidth / 3
+    val isLandscape = state.screenWidth > state.screenHeight
+    val iconWidth = if(isLandscape) state.screenWidth / 5 else state.screenWidth / 3
     val cardHeight = if (isLandscape) {
         if (selectedVessel.hasSafetyMessage) {
             260.dp
@@ -96,6 +95,7 @@ fun VesselCard(
                     verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
                 ) {
                     VesselNameRow(
+                        state = state,
                         sizeFactor = sizeFactor,
                         selectedVessel = selectedVessel,
                         isLandscape = isLandscape,
@@ -131,6 +131,7 @@ fun VesselCard(
                         .fillMaxHeight()
                         .width(iconWidth),
                     viewModel = viewModel,
+                    state = state,
                     data = selectedVessel,
                     selectedVessel = selectedVessel,
                     vessels = vessels,

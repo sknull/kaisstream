@@ -1,6 +1,7 @@
 package de.visualdigits.shipermansfriend.presentation.model
 
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.unit.Dp
 import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.ui.UiText
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
@@ -16,6 +17,9 @@ data class ShipermansFriendState(
     val settings: Settings? = null,
 
     val language: Language = Language.EN,
+
+    val screenWidth: Dp = Dp.Unspecified,
+    val screenHeight: Dp = Dp.Unspecified,
 
     val selectedTabIndex: Int = 0,
     val tabLabels: List<Pair<String, UiText>> = listOf(),
@@ -42,5 +46,7 @@ data class ShipermansFriendState(
     val selectedVessel: AisDataUi? = null,
 
     val currentRadarRadius: Double = 0.0,
-    val previousRadarRadius: Double = 0.0
+    val previousRadarRadius: Double = 0.0,
+
+    val photoProtocol: Map<Long, AisDataUi> = mapOf()
 )

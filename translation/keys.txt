@@ -6,7 +6,10 @@ choose_directory
 choose_file
 close
 delete
+dialog_title_export_master_data
+dialog_title_export_photo_protocol
 dialog_title_export_settings
+dialog_title_import_master_data
 dialog_title_import_settings
 edit
 edit_hint
@@ -78,6 +81,7 @@ label_maxDraught
 label_minutes
 label_moored
 label_opml
+label_photo_protocol
 label_prefetch_images
 label_radiusInner
 label_radiusOuter

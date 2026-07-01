@@ -28,7 +28,6 @@ fun RadarPage(
     viewModel: ShipermansFriendViewModel,
     state: ShipermansFriendState,
     location: Location,
-    isLandscape: Boolean,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
 
@@ -64,7 +63,7 @@ fun RadarPage(
             onAction = onAction
         )
 
-        if (isLandscape) {
+        if (state.screenWidth > state.screenHeight) {
             RadarLandscape(
                 location = location,
                 currentRadarRadius = currentRadarRadius,
